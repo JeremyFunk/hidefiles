@@ -5,15 +5,11 @@ import { hideFiles } from './core';
 
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Congratulations, your extension hidefiles is now active!');
-	const config = getData()
-	console.log("Loaded config: ", config)
-
-	
-
 	//vscode.workspace.getConfiguration("files").update('exclude', )
 
 	let disposableReload = vscode.commands.registerCommand('hidefiles.reloadConfig', () => {
+		const config = getData()
+
 		if(!config){
 			return
 		}
