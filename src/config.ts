@@ -28,14 +28,11 @@ export const getData = (): Configuration | undefined => {
 }
 
 const getDataByConfigFile = (): Configuration | undefined => {
-    console.log("Called")
     const folders = vscode.workspace.workspaceFolders
     if(folders && folders.length > 0){
         const path = `${folders[0].uri.fsPath}\\hide-files.json`
-        console.log("Called2")
         if(fs.existsSync(path)){
             try{
-                console.log("Called3")
                 delete require.cache[require.resolve(path)];
                 const res = require(path) as Configuration
                 console.log(res)
