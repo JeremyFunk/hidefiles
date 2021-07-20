@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/semi */
-import { Console } from 'console';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
