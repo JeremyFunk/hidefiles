@@ -35,7 +35,6 @@ const getDataByConfigFile = (): Configuration | undefined => {
             try{
                 delete require.cache[require.resolve(path)];
                 const res = require(path) as Configuration
-                console.log(res)
                 let err = false
                 res.profiles.some((profile) => {
 
