@@ -2,7 +2,7 @@
 	"name": "hidefiles",
 	"displayName": "HideFiles",
 	"description": "User configurable profiles that hide certain files.",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.57.0"
 	},
@@ -45,5 +45,6 @@
 	"publisher": "JeremyFunk",
 	"dependencies": {
 		"dat.gui": "^0.7.7"
-	}
+	},
+	"repository": {"url": "https://github.com/JeremyFunk/hidefiles"}
 }
