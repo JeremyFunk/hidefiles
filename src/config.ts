@@ -31,11 +31,10 @@ const getDataByConfigFile = (): Configuration | undefined => {
     const folders = vscode.workspace.workspaceFolders
     if(folders && folders.length > 0){
         const path = `${folders[0].uri.fsPath}\\hide-files.json`
-        
         if(fs.existsSync(path)){
             try{
+                delete require.cache[require.resolve(path)];
                 const res = require(path) as Configuration
-
                 let err = false
                 res.profiles.some((profile) => {
 
