@@ -48,7 +48,7 @@ After that, following command has to be run: ```HideFiles: Reload Configuration`
 ![Run Hide Files!](https://user-images.githubusercontent.com/29690247/140790484-78160f67-4e9c-4c62-8af6-5216bd1edadc.png)
 
 ## Found an issue?
-Please create an issue on [GitHub]() or ask a question on the extensions page.
+Please create an issue on [GitHub](https://github.com/JeremyFunk/hidefiles) or ask a question on the [extensions page](https://marketplace.visualstudio.com/items?itemName=JeremyFunk.hidefiles).
 
 ## Changelog
 * V1.0.0 Added proper user feedback and MacOS/Linux support.

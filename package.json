@@ -4,7 +4,7 @@
 	"description": "User configurable profiles that hide certain files.",
 	"version": "1.0.0",
 	"engines": {
-		"vscode": "^1.57.0"
+		"vscode": "^1.58.1"
 	},
 	"categories": [
 		"Other"
@@ -43,9 +43,6 @@
 		"vscode-test": "^1.6.1"
 	},
 	"publisher": "JeremyFunk",
-	"dependencies": {
-		"dat.gui": "^0.7.7"
-	},
 	"repository": {
 		"url": "https://github.com/JeremyFunk/hidefiles"
 	}
