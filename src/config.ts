@@ -30,7 +30,7 @@ export const getData = (): Configuration | undefined => {
 const getDataByConfigFile = (): Configuration | undefined => {
     const folders = vscode.workspace.workspaceFolders
     if(folders && folders.length > 0){
-        const path = `${folders[0].uri.fsPath}\\hide-files.json`
+        const path = `${folders[0].uri.fsPath}/hide-files.json`
         if(fs.existsSync(path)){
             try{
                 delete require.cache[require.resolve(path)];
