@@ -51,5 +51,6 @@ After that, following command has to be run: ```HideFiles: Reload Configuration`
 Please create an issue on [GitHub](https://github.com/JeremyFunk/hidefiles) or ask a question on the [extensions page](https://marketplace.visualstudio.com/items?itemName=JeremyFunk.hidefiles).
 
 ## Changelog
+* V1.0.1 Changed message type of errors to make it clearer to users.
 * V1.0.0 Added proper user feedback and MacOS/Linux support.
 * V0.0.2: First stable version.
