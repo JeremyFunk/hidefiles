@@ -10,7 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
 		config = getData()
 
 		if(!config){
-			vscode.window.showInformationMessage('An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!');
+			vscode.window.showErrorMessage('An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!');
 			return
 		}
 
