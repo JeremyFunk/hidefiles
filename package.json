@@ -1,8 +1,8 @@
 {
 	"name": "hidefiles",
-	"displayName": "HideFiles",
+	"displayName": "Hide Files",
 	"description": "User configurable profiles that hide certain files.",
-	"version": "0.0.2",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.57.0"
 	},
@@ -17,7 +17,7 @@
 		"commands": [
 			{
 				"command": "hidefiles.reloadConfig",
-				"title": "HideFiles: Reload Configuration"
+				"title": "Hide Files: Reload Configuration"
 			}
 		]
 	},
