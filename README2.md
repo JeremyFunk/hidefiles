@@ -1,32 +1,79 @@
 
 # Hide Files
 
-Hide Files allows the user to configure profiles to hide unnecessary folders and files. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
+Hide Files allows the user to configure profiles to hide unnecessary folders and files. It takes ~2 minutes to configure. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
 
 ## Using Hide Files
 
-Let's say you are working on a project with a few folders and files you never or very rarely need to access. The unfiltered project structure might look as follows (I'm using a NextJS project as an example):
+Let's say you are working on a project with a few folders and files you never or very rarely need access to. The unfiltered project structure might look as follows (I'm using a NextJS project as an example):
 
 ![NextJS unfiltered!](https://i.imgur.com/0AyQfEM.png)
 
-Most of the folders and files are not required and tend to slow you down when trying. Let's remove them:
+Most of the folders and files are not required and tend to slow you down when trying to find a file or folder. Let's remove them. Three steps are required to remove all unnecessary files and folders:
 
-1. Create a ```hide-files.json``` config file
+1. Generate a ```hide-files.json``` config file
 2. Add all unwanted folders and files to the config file.
 3. Reload the config.
 
 ## Creating the config
-You can generate a basic config file using
+The basic config file can be generated using the ```Hide Files: Create Configuration``` command (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*):
 
+![Create Config!](https://i.imgur.com/OOtQlUE.png)
 
-The config file has to be located in the root directory of your project (**not in a subfolder**) and has to be called ```hide-files.json```.
+Then select the config you want to generate (I will add presets for various project types in the future™):
+![Create Config!](https://i.imgur.com/OOtQlUE.png)
 
-To run hide files, first the configuration file has to be properly located. Make sure it is in the **root directory** of the workspace, **not** in a sub-folder. The file has to be called `hide-files.json`. 
+The generated config file will be located in the root directory of your project and is called ```hide-files.json```. **Please do not rename, delete or move it**. Hide Files won't be able to find the config.
 
-After that, following command has to be run: ```HideFiles: Reload Configuration``` (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*)
+## Editing the config
 
+The newly generated config file will look as follows:
+
+```json
+{
+    "profiles": [
+        {
+            "name": "Default",
+            "detail": "Hides annoying folders",
+            "description": "Only hides stuff you never need",
+            "hidden": [
+                ".vscode/"
+            ]
+        },
+        {
+            "name": "Strict",
+            "detail": "Hide everything not immediately required",
+            "hidden": [
+                "$Default"
+            ]
+        }
+    ]
+}
+```
+
+The format of the config is simple. It contains a list of profiles, each profile has a name, a description, details and an array of hidden folders and files. The name, description and detail are shown when selecting the profile. 
+
+Profiles can be used to configure different hiding levels. For example:
+
+1. Show everything but generated code (build files)
+2. Only show immediately necessary files and folders
+3. Only show code (no tests, configs etc.)
+
+The hidden folders and files can have these formats:
+
+- ```someFolder/``` Hides entire folder
+- ```someFile``` Hides file
+- ```*.end``` Hides all files with given ending
+- ```$Profile``` Includes all hidden files and folders from the profile called ```Profile```
+
+## Reload config
+
+To reload the Hide Files config, following command has to be run: ```Hide Files: Reload Configuration``` (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*)
 
 ![Run Hide Files!](https://user-images.githubusercontent.com/29690247/140790423-f990bf61-a1f3-4a37-985d-7998928166d3.png)
+
+Then select one of the configured profiles.
+
 ![Run Hide Files!](https://user-images.githubusercontent.com/29690247/140790484-78160f67-4e9c-4c62-8af6-5216bd1edadc.png)
 
 

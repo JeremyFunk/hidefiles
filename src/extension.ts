@@ -27,8 +27,6 @@ export function activate(context: vscode.ExtensionContext) {
 		const selected = files.find(s => s.name === selection.label)
 
 		await createConfig(selected)
-
-		console.log("ah")
 	});
 
 	let disposableReload = vscode.commands.registerCommand('hidefiles.reloadConfig', async () => {
