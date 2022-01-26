@@ -1,67 +1,79 @@
+
 # Hide Files
 
-Hide Files allows the user to configure profiles to hide unnecessary folders and files. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
+Hide Files allows the user to configure profiles to hide unnecessary folders and files. It takes ~2 minutes to configure. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
 
-An example config is:
+## Using Hide Files
+
+Let's say you are working on a project with a few folders and files you never or very rarely need access to. The unfiltered project structure might look as follows (I'm using a NextJS project as an example):
+
+![NextJS unfiltered!](https://i.imgur.com/0AyQfEM.png)
+
+Most of the folders and files are not required and tend to slow you down when trying to find a file or folder. Let's remove them. Three steps are required to remove all unnecessary files and folders:
+
+1. Generate a ```hide-files.json``` config file
+2. Add all unwanted folders and files to the config file.
+3. Reload the config.
+
+## Creating the config
+The basic config file can be generated using the ```Hide Files: Create Configuration``` command (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*):
+
+![Create Config!](https://i.imgur.com/OOtQlUE.png)
+
+Then select the config you want to generate (I will add presets for various project types in the future™):
+![Create Config!](https://i.imgur.com/OOtQlUE.png)
+
+The generated config file will be located in the root directory of your project and is called ```hide-files.json```. **Please do not rename, delete or move it**. Hide Files won't be able to find the config.
+
+## Editing the config
+
+The newly generated config file will look as follows:
 
 ```json
 {
     "profiles": [
         {
             "name": "Default",
-            "detail": "Hides huge, annoying folders",
+            "detail": "Hides annoying folders",
+            "description": "Only hides stuff you never need",
             "hidden": [
-                "node_modules/",
-                ".vscode/",
-                ".storybook/",
-                ".github/"
+                ".vscode/"
             ]
         },
         {
             "name": "Strict",
             "detail": "Hide everything not immediately required",
             "hidden": [
-                "$Default",
-                "electron-builder.yml",
-                "graphql.schema.json",
-                "import-sorter.json",
-                "jest.config.ts",
-                "plopfile.ts",
-                "generators/"
+                "$Default"
             ]
-        },
+        }
     ]
 }
 ```
 
-Folders are marked by the `/` character at the end of the folder name. 
+The format of the config is simple. It contains a list of profiles, each profile has a name, a description, details and an array of hidden folders and files. The name, description and detail are shown when selecting the profile. 
 
-When an element starts with `$`, it marks the element as a profile import (e.g. `$Default` in the hidden property of the `Strict` profile in the example above). These elements import the content of the hidden property of the given profile. In the example above the entire content of the hidden property of the `Default` profile is imported into the hidden property of the `Strict` profile. 
+Profiles can be used to configure different hiding levels. For example:
 
-# Using Hide Files
+1. Show everything but generated code (build files)
+2. Only show immediately necessary files and folders
+3. Only show code (no tests, configs etc.)
 
-Let's say you are working on a project with a few folders and files you never or very rarely need to access. The unfiltered project structure might look as follows (I'm using a NextJS project as an example):
+The hidden folders and files can have these formats:
 
-![NextJS unfiltered!](https://i.imgur.com/0AyQfEM.png)
+- ```someFolder/``` Hides entire folder
+- ```someFile``` Hides file
+- ```*.end``` Hides all files with given ending
+- ```$Profile``` Includes all hidden files and folders from the profile called ```Profile```
 
-Most of the folders and files are not required and tend to slow you down when trying. Let's remove them:
+## Reload config
 
-1. Create a ```hide-files.json``` config file
-2. Add all unwanted folders and files to the config file.
-3. Reload the config.
-
-## Creating the config
-You can generate a basic config file using
-
-
-The config file has to be located in the root directory of your project (**not in a subfolder**) and has to be called ```hide-files.json```.
-
-To run hide files, first the configuration file has to be properly located. Make sure it is in the **root directory** of the workspace, **not** in a sub-folder. The file has to be called `hide-files.json`. 
-
-After that, following command has to be run: ```HideFiles: Reload Configuration``` (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*)
-
+To reload the Hide Files config, following command has to be run: ```Hide Files: Reload Configuration``` (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*)
 
 ![Run Hide Files!](https://user-images.githubusercontent.com/29690247/140790423-f990bf61-a1f3-4a37-985d-7998928166d3.png)
+
+Then select one of the configured profiles.
+
 ![Run Hide Files!](https://user-images.githubusercontent.com/29690247/140790484-78160f67-4e9c-4c62-8af6-5216bd1edadc.png)
 
 
