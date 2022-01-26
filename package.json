@@ -7,10 +7,12 @@
 		"vscode": "^1.58.1"
 	},
 	"categories": [
-		"Other"
+		"Other",
+		"Visualization"
 	],
 	"activationEvents": [
-		"onCommand:hidefiles.reloadConfig"
+		"onCommand:hidefiles.reloadConfig",
+		"onCommand:hidefiles.createConfig"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -18,6 +20,10 @@
 			{
 				"command": "hidefiles.reloadConfig",
 				"title": "Hide Files: Reload Configuration"
+			},
+			{
+				"command": "hidefiles.createConfig",
+				"title": "Hide Files: Create Configuration"
 			}
 		]
 	},

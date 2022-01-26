@@ -1,0 +1,27 @@
+{
+    "configs": [
+        {
+            "name": "Empty config",
+            "details": "An empty config file",
+            "content": {
+                "profiles": [
+                    {
+                        "name": "Default",
+                        "detail": "Hides annoying folders",
+                        "description": "Test",
+                        "hidden": [
+                            ".vscode/"
+                        ]
+                    },
+                    {
+                        "name": "Strict",
+                        "detail": "Hide everything not immediately required",
+                        "hidden": [
+                            "$Default"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
