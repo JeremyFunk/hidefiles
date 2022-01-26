@@ -1,7 +1,7 @@
 
 # Hide Files
 
-Hide Files allows the user to configure profiles to hide unnecessary folders and files. It takes ~2 minutes to configure. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
+Hide Files allows the user to configure profiles to hide unnecessary files and folders. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
 
 ## Using Hide Files
 
@@ -21,6 +21,7 @@ The basic config file can be generated using the ```Hide Files: Create Configura
 ![Create Config!](https://i.imgur.com/OOtQlUE.png)
 
 Then select the config you want to generate (I will add presets for various project types in the future™):
+
 ![Create Config!](https://i.imgur.com/OOtQlUE.png)
 
 The generated config file will be located in the root directory of your project and is called ```hide-files.json```. **Please do not rename, delete or move it**. Hide Files won't be able to find the config.
@@ -51,19 +52,19 @@ The newly generated config file will look as follows:
 }
 ```
 
-The format of the config is simple. It contains a list of profiles, each profile has a name, a description, details and an array of hidden folders and files. The name, description and detail are shown when selecting the profile. 
+The format of the config is simple. It contains a list of profiles, each profile has a name, a description, details and an array of hidden files and folders. The name, description and detail are shown when selecting the profile. 
 
 Profiles can be used to configure different hiding levels. For example:
 
-1. Show everything but generated code (build files)
-2. Only show immediately necessary files and folders
-3. Only show code (no tests, configs etc.)
+- Level 1: Show everything but generated code (build files).
+- Level 2: Only show immediately necessary files and folders.
+- Level 3: Only show code (no tests, configs etc.).
 
-The hidden folders and files can have these formats:
+The hidden files and folders can have these formats:
 
 - ```someFolder/``` Hides entire folder
 - ```someFile``` Hides file
-- ```*.end``` Hides all files with given ending
+- ```*.end``` Hides all files with given file ending
 - ```$Profile``` Includes all hidden files and folders from the profile called ```Profile```
 
 ## Reload config
@@ -82,6 +83,7 @@ Then select one of the configured profiles.
 Please create an issue on [GitHub](https://github.com/JeremyFunk/hidefiles) or ask a question on the [extensions page](https://marketplace.visualstudio.com/items?itemName=JeremyFunk.hidefiles).
 
 ## Changelog
+* V1.0.2 Added config creation and better ReadMe.
 * V1.0.1 Changed message type of errors to make it clearer to users.
 * V1.0.0 Added proper user feedback and MacOS/Linux support.
 * V0.0.2: First stable version.
