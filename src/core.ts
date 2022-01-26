@@ -25,6 +25,5 @@ export const hideFiles = (profile: Profile): boolean => {
 
     vscode.workspace.getConfiguration("files").update('exclude', retExcludes)
 	
-
     return true
 }

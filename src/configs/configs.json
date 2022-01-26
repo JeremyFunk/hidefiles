@@ -1,0 +1,63 @@
+{
+    "configs": [
+        {
+            "name": "Empty config",
+            "details": "An empty config file",
+            "content": {
+                "profiles": [
+                    {
+                        "name": "Default",
+                        "detail": "Hides annoying folders",
+                        "hidden": [
+                            ".vscode/",
+                            ".github/"
+                        ]
+                    },
+                    {
+                        "name": "Strict",
+                        "detail": "Hide everything not immediately required",
+                        "hidden": [
+                            "$Default"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "NextJS",
+            "details": "Standard NextJS config file",
+            "content": {
+                "profiles": [
+                    {
+                        "name": "Default",
+                        "detail": "Hides annoying folders",
+                        "hidden": [
+                            ".vscode/",
+                            ".github/",
+                            ".next/",
+                            ".next-env.d.ts",
+                            ".next.config.js"
+                        ]
+                    },
+                    {
+                        "name": "Strict",
+                        "detail": "Hide everything not immediately required",
+                        "hidden": [
+                            "$Default",
+                            ".eslintrc.json",
+                            ".prettierrc",
+                            ".gitignore",
+                            "dockerfile",
+                            "Makefile",
+                            "tsconfig.json",
+                            "yarn-error.json",
+                            "yarn.lock",
+                            "package-lock.json"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+    
+}
