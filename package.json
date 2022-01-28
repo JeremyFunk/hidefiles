@@ -12,20 +12,60 @@
 	],
 	"activationEvents": [
 		"onCommand:hidefiles.reloadConfig",
-		"onCommand:hidefiles.createConfig"
+		"onCommand:hidefiles.createConfig",
+		"onCommand:hidefiles.openGlobalConfig"
+	],
+	"keywords": [
+		"Files",
+		"Hidefiles",
+		"Hide"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "hidefiles.reloadConfig",
-				"title": "Hide Files: Reload Configuration"
+				"title": "Hide Files: Reload Config"
 			},
 			{
 				"command": "hidefiles.createConfig",
-				"title": "Hide Files: Create Configuration"
+				"title": "Hide Files: Create Config"
+			},
+			{
+				"command": "hidefiles.openGlobalConfig",
+				"title": "Hide Files: Open Global Config"
 			}
-		]
+		],
+		"configuration": {
+			"type": "object",
+			"title": "%configuration.title%",
+			"properties": {
+			  "hidefiles.globalConfig": {
+				"type": "object",
+				"default": 
+				{
+					"profiles": [
+						{
+							"name": "Default",
+							"detail": "Hides annoying folders",
+							"description": "Test",
+							"hidden": [
+								".vscode/"
+							]
+						},
+						{
+							"name": "Strict",
+							"detail": "Hide everything not immediately required",
+							"hidden": [
+								"$Default"
+							]
+						}
+					]
+				},
+				"description": "The default order level of everything which is not included into rules"
+			  }
+			}
+		  }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

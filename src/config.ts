@@ -14,7 +14,14 @@ export interface Configuration {
 }
 
 export const getData = (): Configuration | undefined => {
-    const data = getDataByConfigFile()
+    let data = getDataByConfigFile()
+
+    if(!data){
+        const workbenchConfig = vscode.workspace.getConfiguration(scope: new )
+        data = workbenchConfig.get('hidefiles.globalConfig') as Configuration
+
+        console.log(JSON.stringify(data))
+    }
 
     if(data){  
         data.profiles = [{
@@ -26,6 +33,10 @@ export const getData = (): Configuration | undefined => {
     }
     return data
 }
+
+// const getDataByGlobalConfig = (): Configuration => {
+
+// }
 
 const getDataByConfigFile = (): Configuration | undefined => {
     const folders = vscode.workspace.workspaceFolders

@@ -7,7 +7,7 @@
                 "profiles": [
                     {
                         "name": "Default",
-                        "detail": "Hides annoying folders",
+                        "detail": "",
                         "description": "Test",
                         "hidden": [
                             ".vscode/"

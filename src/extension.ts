@@ -6,6 +6,34 @@ import { createConfig, getConfigs } from './create';
 
 
 export function activate(context: vscode.ExtensionContext) {
+
+	let disposableOpenGlobalConfig = vscode.commands.registerCommand('hidefiles.openGlobalConfig', async () => {
+		await vscode.commands.executeCommand( 'workbench.action.openSettingsJson')
+
+		const content = vscode.window.activeTextEditor.document.getText().split(/\r\n|\n\r|\n|\r/)
+		const line = content.findIndex(s => s.includes("hidefiles.globalConfig"))
+
+		if(line !== -1){
+			vscode.window.activeTextEditor.selection = new vscode.Selection(new vscode.Position(line, 0), new vscode.Position(line, content[line].length))
+		}else{
+			// vscode.window.activeTextEditor.edit(e => {
+			// 	let insert = ""
+			// 	let start = undefined
+			// 	if(!content[content.length - 2].endsWith(",")){
+			// 		insert = ",\n"
+			// 		start = new vscode.Position(content.length - 2, content[content.length - 2].length)
+			// 	}
+
+			// 	insert += `\t"hidefiles.globalConfig": \n`
+
+			// 	e.insert(start || new vscode.Position(content.length - 1, 0), insert)
+			// })
+			vscode.window.showErrorMessage("Could not find global hidefiles config. Please add field hidefiles.globalConfig")
+		}
+		
+		console.log(line)
+	})
+
 	let disposableCreate = vscode.commands.registerCommand('hidefiles.createConfig', async () => {
 		const files = getConfigs()
 
@@ -72,6 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(disposableReload);
 	context.subscriptions.push(disposableCreate);
+	context.subscriptions.push(disposableOpenGlobalConfig)
 }
 
 export function deactivate() {}

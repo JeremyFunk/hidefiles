@@ -1,7 +1,7 @@
 
 # Hide Files
 
-Hide Files allows the user to configure profiles to hide unnecessary files and folders. The configuration is defined in a file on the root level of the workspace, called `hide-files.json`.
+Hide Files allows the user to configure profiles to hide all files and folders that are not immediately needed. This makes it much easier to find relevant files.
 
 ## Using Hide Files
 
@@ -15,7 +15,20 @@ Most of the folders and files are not required and tend to slow you down when tr
 2. Add all unwanted folders and files to the config file.
 3. Reload the config.
 
-## Creating the config
+# Creating the config
+
+Configs can either be created on a project or global level. When a configuration on project level is available, the project configuration is used. Global configurations are used for any project that does not contain a project level config. 
+
+## Global config
+
+To open the global config use the command ```Hide Files: Open Gloabl Config``` (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*):
+
+![Global Config Command!](https://i.imgur.com/5XKprSt.png)
+
+The VSCode settings JSON will be opened. If you have not yet defined a global Hide Files config, add the field ```"hidefiles.globalConfig"``` to the file. Autocompletion will generate the default config. From here you can proceed by [editing the config](#editing-the-config).
+
+## Project config
+
 The basic config file can be generated using the ```Hide Files: Create Configuration``` command (Windows/Linux: *Ctrl + Shift + P*, MacOS: *⇧ + ⌘ + P*):
 
 ![Create Config!](https://i.imgur.com/OOtQlUE.png)
@@ -27,6 +40,8 @@ Then select the config you want to generate (I will add presets for various proj
 The generated config file will be located in the root directory of your project and is called ```hide-files.json```. **Please do not rename, delete or move it**. Hide Files won't be able to find the config.
 
 ## Editing the config
+
+Editing the config works the same way for project and global configs.
 
 The newly generated config file will look as follows:
 
@@ -59,6 +74,8 @@ Profiles can be used to configure different hiding levels. For example:
 - Level 1: Show everything but generated code (build files).
 - Level 2: Only show immediately necessary files and folders.
 - Level 3: Only show code (no tests, configs etc.).
+
+Alternatively profiles can be used to create different profiles for monorepos (for example one profile for testing, client and server development).
 
 The hidden files and folders can have these formats:
 
