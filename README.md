@@ -20,9 +20,9 @@ Configs can either be created on a project or global level. When a configuration
 
 ## Global config
 
-To open the global config use the command `Hide Files: Open Gloabl Config` (Windows/Linux: _Ctrl + Shift + P_, MacOS: _⇧ + ⌘ + P_):
+To open the global config use the command `Preferences: Open Settings (JSON)` (Windows/Linux: _Ctrl + Shift + P_, MacOS: _⇧ + ⌘ + P_):
 
-![Global Config Command!](https://i.imgur.com/5XKprSt.png)
+![Global Config Command!](https://i.imgur.com/pyKxNjP.png)
 
 The VSCode settings JSON will be opened. If you have not yet defined a global Hide Files config, add the field `"hidefiles.globalConfig"` to the file. Autocompletion will generate the default config. From here you can proceed by [editing the config](#editing-the-config).
 
@@ -46,38 +46,38 @@ The newly generated config file will look as follows:
 
 ```json
 {
-  "profiles": [
-    {
-      "name": "Default",
-      "detail": "Hides annoying folders",
-      "description": "Only hides stuff you never need",
-      "hidden": [".vscode/"]
-    },
-    {
-      "name": "Strict",
-      "detail": "Hide everything not immediately required",
-      "hidden": ["$Default"]
-    }
-  ]
+    "profiles": [
+        {
+            "name": "Default",
+            "detail": "Hides annoying folders",
+            "description": "Only hides stuff you never need",
+            "hidden": [".vscode/"]
+        },
+        {
+            "name": "Strict",
+            "detail": "Hide everything not immediately required",
+            "hidden": ["$Default"]
+        }
+    ]
 }
 ```
 
-The format of the config is simple. It contains a list of profiles, each profile has a name, a description, details and an array of hidden files and folders. The name, description and detail are shown when selecting the profile.
+The format of the config is simple. It contains a list of profiles, each profile has a name, a description, detail and an array of hidden files and folders. The name, description and detail are shown when selecting the profile. The detail field is optional. When left undefined, a list of all hidden folders & files will be used as detail.
 
 Profiles can be used to configure different hiding levels. For example:
 
-- Level 1: Show everything but generated code (build files).
-- Level 2: Only show immediately necessary files and folders.
-- Level 3: Only show code (no tests, configs etc.).
+-   Level 1: Show everything but generated code (build files).
+-   Level 2: Only show immediately necessary files and folders.
+-   Level 3: Only show code (no tests, configs etc.).
 
 Alternatively profiles can be used to create different profiles for monorepos (for example one profile for testing, client and server development).
 
 The hidden files and folders can have these formats:
 
-- `someFolder/` Hides entire folder
-- `someFile` Hides file
-- `*.end` Hides all files with given file ending
-- `$Profile` Includes all hidden files and folders from the profile called `Profile`
+-   `someFolder/` Hides entire folder
+-   `someFile` Hides file
+-   `*.end` Hides all files with given file ending
+-   `$Profile` Includes all hidden files and folders from the profile called `Profile`
 
 ## Reload config
 
@@ -95,8 +95,8 @@ Please create an issue on [GitHub](https://github.com/JeremyFunk/hidefiles) or a
 
 ## Changelog
 
-- V1.1.0 Added config generator and global configs.
-- V1.0.2 Added config creation and better ReadMe.
-- V1.0.1 Changed message type of errors to make it clearer to users.
-- V1.0.0 Added proper user feedback and MacOS/Linux support.
-- V0.0.2: First stable version.
+-   V1.1.0 Added config generator and global configs.
+-   V1.0.2 Added config creation and better ReadMe.
+-   V1.0.1 Changed message type of errors to make it clearer to users.
+-   V1.0.0 Added proper user feedback and MacOS/Linux support.
+-   V0.0.2: First stable version.
