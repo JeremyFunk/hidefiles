@@ -5,6 +5,23 @@ import { hideFiles } from "./core";
 import { createConfig, getConfigs } from "./create";
 
 export function activate(context: vscode.ExtensionContext) {
+    // const myStatusBarItem = vscode.window.createStatusBarItem(
+    //     vscode.StatusBarAlignment.Left,
+    //     100
+    // );
+    // myStatusBarItem.text = "Hide Files: ";
+    // myStatusBarItem.command = "hidefiles.reloadConfig";
+    // context.subscriptions.push(myStatusBarItem);
+    // myStatusBarItem.show();
+
+    let disposableDeactivate = vscode.commands.registerCommand(
+        "hidefiles.deactivate",
+        async () => {
+            const files = await getData();
+            hideFiles(files.profiles[0]);
+        }
+    );
+
     let disposableCreate = vscode.commands.registerCommand(
         "hidefiles.createConfig",
         async () => {
@@ -34,8 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
     let disposableReload = vscode.commands.registerCommand(
         "hidefiles.reloadConfig",
         async () => {
-            let config;
-            config = await getData();
+            let config = await getData();
 
             if (!config) {
                 vscode.window.showErrorMessage(
@@ -76,11 +92,16 @@ export function activate(context: vscode.ExtensionContext) {
                     "An error occurred while trying to hide files!"
                 );
             }
+
+            // myStatusBarItem.text = "Hide Files: " + selected.name;
+
+            // myStatusBarItem.show();
         }
     );
 
     context.subscriptions.push(disposableReload);
     context.subscriptions.push(disposableCreate);
+    context.subscriptions.push(disposableDeactivate);
 }
 
 export function deactivate() {}

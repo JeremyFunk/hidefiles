@@ -23,7 +23,7 @@ export const getData = async (): Promise<Configuration | undefined> => {
         );
 
         if (hidefilesConfig.globalValue) {
-            return hidefilesConfig.globalValue as Configuration;
+            data = hidefilesConfig.globalValue as Configuration;
         }
     }
 

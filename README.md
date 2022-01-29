@@ -18,7 +18,7 @@ Most of the folders and files are not required and tend to slow you down when tr
 
 Configs can either be created on a project or global level. When a configuration on project level is available, the project configuration is used. Global configurations are used for any project that does not contain a project level config.
 
-## Global config
+## Global-Level-Config
 
 To open the global config use the command `Preferences: Open Settings (JSON)` (Windows/Linux: _Ctrl + Shift + P_, MacOS: _⇧ + ⌘ + P_):
 
@@ -26,7 +26,7 @@ To open the global config use the command `Preferences: Open Settings (JSON)` (W
 
 The VSCode settings JSON will be opened. If you have not yet defined a global Hide Files config, add the field `"hidefiles.globalConfig"` to the file. Autocompletion will generate the default config. From here you can proceed by [editing the config](#editing-the-config).
 
-## Project config
+## Project-Level-Config
 
 The basic config file can be generated using the `Hide Files: Create Configuration` command (Windows/Linux: _Ctrl + Shift + P_, MacOS: _⇧ + ⌘ + P_):
 
