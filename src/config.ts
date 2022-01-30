@@ -14,17 +14,11 @@ export interface Configuration {
 }
 
 export const getData = async (): Promise<Configuration | undefined> => {
-    let data = getDataByConfigFile();
+    let data = getDataByLocalFile();
 
     if (!data) {
-        const workspaceConfig = await vscode.workspace.getConfiguration();
-        const hidefilesConfig = workspaceConfig.inspect(
-            "hidefiles.globalConfig"
-        );
-
-        if (hidefilesConfig.globalValue) {
-            data = hidefilesConfig.globalValue as Configuration;
-        }
+        console.log("lets get it globally");
+        data = await getDataByGlobalConfig();
     }
 
     if (data) {
@@ -41,11 +35,25 @@ export const getData = async (): Promise<Configuration | undefined> => {
     return data;
 };
 
-// const getDataByGlobalConfig = (): Configuration => {
+const getDataByGlobalConfig = async (): Promise<Configuration | undefined> => {
+    try {
+        const workspaceConfig = await vscode.workspace.getConfiguration();
+        const hidefilesConfig = workspaceConfig.inspect(
+            "hidefiles.globalConfig"
+        );
 
-// }
+        if (hidefilesConfig.globalValue) {
+            const res = getDataByConfigFile(
+                hidefilesConfig.globalValue as Configuration
+            );
+            return res;
+        }
+    } catch (e) {
+        console.error(e);
+    }
+};
 
-const getDataByConfigFile = (): Configuration | undefined => {
+const getDataByLocalFile = (): Configuration | undefined => {
     const folders = vscode.workspace.workspaceFolders;
     if (folders && folders.length > 0) {
         const path = `${folders[0].uri.fsPath}/hide-files.json`;
@@ -53,60 +61,61 @@ const getDataByConfigFile = (): Configuration | undefined => {
             try {
                 delete require.cache[require.resolve(path)];
                 const res = require(path) as Configuration;
-                let err = false;
-                res.profiles.some((profile) => {
-                    if (!profile.detail) {
-                        let hasLinks = false;
-
-                        profile.detail = "$(extensions-star-empty)Extends: ";
-                        profile.hidden.forEach((s) => {
-                            if (s.startsWith("$")) {
-                                hasLinks = true;
-                                profile.detail += s.substr(1) + " ‎ ‎ ";
-                            }
-                        });
-                        if (!hasLinks) {
-                            profile.detail = "";
-                        }
-
-                        profile.detail +=
-                            "Hides: " +
-                            profile.hidden
-                                .map((s) => {
-                                    if (s.startsWith("$")) {
-                                        return "";
-                                    }
-
-                                    if (s.endsWith("/")) {
-                                        return "$(folder)" + s + "    ";
-                                    } else {
-                                        return "$(symbol-file)" + s + "   ";
-                                    }
-                                })
-                                .join(" ");
-                    }
-
-                    const newHidden = recursivelyResolveHidden(
-                        res,
-                        profile,
-                        []
-                    );
-                    if (!newHidden) {
-                        err = true;
-                        return true;
-                    }
-
-                    profile.hidden = newHidden;
-                });
-                if (err) {
-                    return undefined;
-                }
-                return res;
+                return getDataByConfigFile(res);
             } catch (er) {
                 console.log(er);
             }
         }
     }
+};
+
+const getDataByConfigFile = (
+    fileContent: Configuration
+): Configuration | undefined => {
+    let err = false;
+    fileContent.profiles.some((profile) => {
+        if (!profile.detail) {
+            let hasLinks = false;
+
+            profile.detail = "$(extensions-star-empty)Extends: ";
+            profile.hidden.forEach((s) => {
+                if (s.startsWith("$")) {
+                    hasLinks = true;
+                    profile.detail += s.substr(1) + " ‎ ‎ ";
+                }
+            });
+            if (!hasLinks) {
+                profile.detail = "";
+            }
+
+            profile.detail +=
+                "Hides: " +
+                profile.hidden
+                    .map((s) => {
+                        if (s.startsWith("$")) {
+                            return "";
+                        }
+
+                        if (s.endsWith("/")) {
+                            return "$(folder)" + s + "    ";
+                        } else {
+                            return "$(symbol-file)" + s + "   ";
+                        }
+                    })
+                    .join(" ");
+        }
+        const newHidden = recursivelyResolveHidden(fileContent, profile, []);
+        if (!newHidden) {
+            err = true;
+            return true;
+        }
+
+        profile.hidden = newHidden;
+    });
+    if (err) {
+        return undefined;
+    }
+    return fileContent;
 };
 
 const recursivelyResolveHidden = (
