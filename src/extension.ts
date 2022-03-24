@@ -4,15 +4,52 @@ import { getData } from "./config";
 import { hideFiles } from "./core";
 import { createConfig, getConfigs } from "./create";
 
-export function activate(context: vscode.ExtensionContext) {
-    // const myStatusBarItem = vscode.window.createStatusBarItem(
-    //     vscode.StatusBarAlignment.Left,
-    //     100
-    // );
-    // myStatusBarItem.text = "Hide Files: ";
-    // myStatusBarItem.command = "hidefiles.reloadConfig";
-    // context.subscriptions.push(myStatusBarItem);
-    // myStatusBarItem.show();
+export async function activate(context: vscode.ExtensionContext) {
+    const configuration = await vscode.workspace.getConfiguration();
+
+    const selectedProfile = configuration.get("hidefiles.selectedProfile");
+
+    const myStatusBarItem = vscode.window.createStatusBarItem(
+        vscode.StatusBarAlignment.Left,
+        100
+    );
+    myStatusBarItem.command = "hidefiles.reloadConfig";
+    context.subscriptions.push(myStatusBarItem);
+    if (selectedProfile && selectedProfile !== "") {
+        myStatusBarItem.text = "Hide Files: " + selectedProfile;
+        myStatusBarItem.show();
+    }
+
+    let disposableHideFile = vscode.commands.registerCommand(
+        "hidefiles.hidefile",
+        async (args: any) => {
+            const filepath = args.path as string;
+
+            try {
+                const test = await vscode.workspace.fs.stat(
+                    vscode.Uri.file(filepath)
+                );
+
+                if (test.type === vscode.FileType.File) {
+                    //Add file
+                } else if (test.type === vscode.FileType.Directory) {
+                    //Add directory
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            console.log(test);
+
+            console.log("Hidefile");
+        }
+    );
+
+    let disposableHiddenFiles = vscode.commands.registerCommand(
+        "hidefiles.hiddenfiles",
+        async () => {
+            console.log("Hidden files");
+        }
+    );
 
     let disposableDeactivate = vscode.commands.registerCommand(
         "hidefiles.deactivate",
@@ -93,15 +130,32 @@ export function activate(context: vscode.ExtensionContext) {
                 );
             }
 
-            // myStatusBarItem.text = "Hide Files: " + selected.name;
-
-            // myStatusBarItem.show();
+            if (selected.hidden.length !== 0) {
+                myStatusBarItem.text = "Hide Files: " + selected.name;
+                myStatusBarItem.show();
+                const configuration = await vscode.workspace.getConfiguration();
+                configuration.update(
+                    "hidefiles.selectedProfile",
+                    selected.name,
+                    vscode.ConfigurationTarget.Global
+                );
+            } else {
+                myStatusBarItem.hide();
+                const configuration = await vscode.workspace.getConfiguration();
+                configuration.update(
+                    "hidefiles.selectedProfile",
+                    "",
+                    vscode.ConfigurationTarget.Global
+                );
+            }
         }
     );
 
     context.subscriptions.push(disposableReload);
     context.subscriptions.push(disposableCreate);
     context.subscriptions.push(disposableDeactivate);
+    context.subscriptions.push(disposableHideFile);
+    context.subscriptions.push(disposableHiddenFiles);
 }
 
 export function deactivate() {}

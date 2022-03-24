@@ -13,6 +13,8 @@ export interface Configuration {
     profiles: Profile[];
 }
 
+export const setData = async (config: Configuration) => {};
+
 export const getData = async (): Promise<Configuration | undefined> => {
     let data = getDataByLocalFile();
 

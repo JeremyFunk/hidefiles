@@ -1,5 +1,6 @@
 # Change Log
 
+-   V1.1.2 Global config bugfix.
 -   V1.1.1 Bugfix.
 -   V1.1.0 Added config generator and global configs.
 -   V1.0.2 Added config creation and better ReadMe.

@@ -2,7 +2,7 @@
     "name": "hidefiles",
     "displayName": "Hide Files",
     "description": "User configurable profiles that hide certain files.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.58.1"
@@ -12,6 +12,7 @@
         "Visualization"
     ],
     "activationEvents": [
+        "onView:hidden-files",
         "onCommand:hidefiles.reloadConfig",
         "onCommand:hidefiles.createConfig",
         "onCommand:hidefiles.deactivate"
@@ -23,6 +24,39 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
+        "views": {
+            "explorer": [
+                {
+                    "id": "hidden-files",
+                    "name": "Hidden files"
+                }
+            ]
+        },
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "hidefiles.hidefile",
+                    "group": "z_commands@1"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "hidefiles.hiddenfiles",
+                    "when": "view == hidden-files",
+                    "group": "navigation"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "hidefiles.hidefile",
+                    "when": "false"
+                },
+                {
+                    "command": "hidefiles.hiddenfiles",
+                    "when": "false"
+                }
+            ]
+        },
         "commands": [
             {
                 "command": "hidefiles.reloadConfig",
@@ -35,6 +69,14 @@
             {
                 "command": "hidefiles.deactivate",
                 "title": "Hide Files: Deactivate"
+            },
+            {
+                "command": "hidefiles.hidefile",
+                "title": "Hide File"
+            },
+            {
+                "command": "hidefiles.hiddenfiles",
+                "title": "Hidden Files"
             }
         ],
         "configuration": {
@@ -63,6 +105,10 @@
                         ]
                     },
                     "description": "The default order level of everything which is not included into rules"
+                },
+                "hidefiles.selectedProfile": {
+                    "type": "string",
+                    "description": "The selected profile"
                 }
             }
         }
