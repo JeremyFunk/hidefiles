@@ -36,7 +36,7 @@
             "explorer/context": [
                 {
                     "command": "hidefiles.hidefile",
-                    "group": "z_commands@1"
+                    "group": "5_cutcopypaste@1000"
                 }
             ],
             "view/title": [
@@ -60,7 +60,7 @@
         "commands": [
             {
                 "command": "hidefiles.reloadConfig",
-                "title": "Hide Files: Reload"
+                "title": "Hide Files: Reload Profile"
             },
             {
                 "command": "hidefiles.createConfig",

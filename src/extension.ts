@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/semi */
 import * as vscode from "vscode";
-import { getData } from "./config";
+import { getData, writeConfig } from "./config";
 import { hideFiles } from "./core";
 import { createConfig, getConfigs } from "./create";
+import { HiddenFilesProvider } from "./tree";
 
 export async function activate(context: vscode.ExtensionContext) {
+    const provider = new HiddenFilesProvider();
+    vscode.window.registerTreeDataProvider("hidden-files", provider);
+    vscode.window.createTreeView("hidden-files", {
+        treeDataProvider: provider,
+    });
+
     const configuration = await vscode.workspace.getConfiguration();
 
     const selectedProfile = configuration.get("hidefiles.selectedProfile");
@@ -23,38 +30,101 @@ export async function activate(context: vscode.ExtensionContext) {
     let disposableHideFile = vscode.commands.registerCommand(
         "hidefiles.hidefile",
         async (args: any) => {
-            const filepath = args.path as string;
+            const text = await vscode.env.clipboard.readText();
+            await vscode.commands.executeCommand("copyFilePath");
+            const paths = (await vscode.env.clipboard.readText()).split(
+                /\r?\n/
+            );
+            await vscode.env.clipboard.writeText(text);
 
-            try {
-                const test = await vscode.workspace.fs.stat(
-                    vscode.Uri.file(filepath)
+            const config = await getData();
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+            if (!selectedProfile || selectedProfile === "") {
+                await vscode.window.showErrorMessage(
+                    "Please select a hide files profile first!"
                 );
+                return;
+            }
+            const profile = config.config.profiles.find(
+                (c) => c.name === selectedProfile
+            );
+            try {
+                if (!config.config) {
+                    await vscode.window.showErrorMessage(
+                        "Please generate a config first!"
+                    );
+                    return;
+                }
+                for (let filepath of paths) {
+                    const file = await vscode.workspace.fs.stat(
+                        vscode.Uri.file(filepath)
+                    );
 
-                if (test.type === vscode.FileType.File) {
-                    //Add file
-                } else if (test.type === vscode.FileType.Directory) {
-                    //Add directory
+                    const folders = vscode.workspace.workspaceFolders;
+                    if (!folders) {
+                        await vscode.window.showErrorMessage(
+                            "Please open a workspace to use HideFiles!"
+                        );
+                        return;
+                    }
+                    let formattedFilePath = filepath
+                        .replaceAll("\\\\", "/")
+                        .replaceAll("\\", "/");
+                    let formattedWorkspace = folders[0].uri.fsPath
+                        .replaceAll("\\\\", "/")
+                        .replaceAll("\\", "/");
+                    formattedWorkspace = formattedWorkspace.split(":")[1];
+                    formattedFilePath = formattedFilePath.split(":")[1];
+                    formattedFilePath = formattedFilePath.replace(
+                        formattedWorkspace,
+                        ""
+                    );
+                    if (formattedFilePath.startsWith("/")) {
+                        formattedFilePath = formattedFilePath.slice(
+                            1,
+                            formattedFilePath.length
+                        );
+                    }
+
+                    console.log(folders[0].uri.fsPath, filepath);
+
+                    if (file.type === vscode.FileType.File) {
+                        //Add file
+                        profile.hidden.push(formattedFilePath);
+                    } else if (file.type === vscode.FileType.Directory) {
+                        //Add directory
+                        profile.hidden.push(formattedFilePath + "/");
+                    } else {
+                        continue;
+                    }
+                }
+                config.config.profiles.splice(0, 1);
+                writeConfig(config);
+                try {
+                    hideFiles(profile);
+                } catch (error) {
+                    vscode.window.showInformationMessage(
+                        "An error occurred while trying to hide files!"
+                    );
                 }
             } catch (e) {
                 console.error(e);
             }
-            console.log(test);
-
-            console.log("Hidefile");
         }
     );
 
     let disposableHiddenFiles = vscode.commands.registerCommand(
         "hidefiles.hiddenfiles",
-        async () => {
-            console.log("Hidden files");
-        }
+        async () => {}
     );
 
     let disposableDeactivate = vscode.commands.registerCommand(
         "hidefiles.deactivate",
         async () => {
-            const files = await getData();
+            const files = await (await getData()).config;
             hideFiles(files.profiles[0]);
         }
     );
@@ -90,7 +160,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {
             let config = await getData();
 
-            if (!config) {
+            if (!config.config) {
                 vscode.window.showErrorMessage(
                     "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
                 );
@@ -99,8 +169,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
             let items: vscode.QuickPickItem[] = [];
 
-            for (let index = 0; index < config.profiles.length; index++) {
-                let item = config.profiles[index];
+            for (
+                let index = 0;
+                index < config.config.profiles.length;
+                index++
+            ) {
+                let item = config.config.profiles[index];
                 items.push({
                     label: item.name,
                     description: item.description,
@@ -114,7 +188,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const selected = config.profiles.find(
+            const selected = config.config.profiles.find(
                 (s) => s.name === selection.label
             );
 
@@ -157,5 +231,3 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposableHideFile);
     context.subscriptions.push(disposableHiddenFiles);
 }
-
-export function deactivate() {}

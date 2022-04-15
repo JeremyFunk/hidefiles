@@ -13,14 +13,24 @@ export interface Configuration {
     profiles: Profile[];
 }
 
+export enum ConfigurationLocation {
+    Local,
+    Global,
+}
+export interface ConfigurationFile {
+    location: ConfigurationLocation;
+    config: Configuration;
+}
+
 export const setData = async (config: Configuration) => {};
 
-export const getData = async (): Promise<Configuration | undefined> => {
+export const getData = async (): Promise<ConfigurationFile | undefined> => {
     let data = getDataByLocalFile();
+    let location = ConfigurationLocation.Local;
 
     if (!data) {
-        console.log("lets get it globally");
         data = await getDataByGlobalConfig();
+        location = ConfigurationLocation.Global;
     }
 
     if (data) {
@@ -34,7 +44,10 @@ export const getData = async (): Promise<Configuration | undefined> => {
             ...data.profiles,
         ];
     }
-    return data;
+    return {
+        location: location,
+        config: data,
+    };
 };
 
 const getDataByGlobalConfig = async (): Promise<Configuration | undefined> => {
@@ -153,4 +166,36 @@ const recursivelyResolveHidden = (
     });
 
     return newHidden;
+};
+
+export const writeConfig = async (config: ConfigurationFile) => {
+    if (config.location === ConfigurationLocation.Local) {
+        const folders = vscode.workspace.workspaceFolders;
+        fs.writeFile(
+            `${folders[0].uri.fsPath}/hide-files.json`,
+            JSON.stringify(config.config),
+            () => {}
+        );
+    } else {
+        try {
+            const workspaceConfig = await vscode.workspace.getConfiguration();
+            const workspace = workspaceConfig.inspect(
+                "hidefiles.globalConfig"
+            ).workspaceValue;
+
+            let target = vscode.ConfigurationTarget.Global;
+
+            if (global) {
+                target = vscode.ConfigurationTarget.Workspace;
+            }
+
+            workspaceConfig.update(
+                "hidefiles.globalConfig",
+                config.config,
+                target
+            );
+        } catch (e) {
+            console.error(e);
+        }
+    }
 };
