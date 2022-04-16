@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/semi */
 import * as vscode from "vscode";
-import { getData, writeConfig } from "./config";
+import { getData, getDataUnmodified, writeConfig } from "./config";
 import { hideFiles } from "./core";
 import { createConfig, getConfigs } from "./create";
 import { HiddenFilesProvider } from "./tree";
@@ -12,21 +12,6 @@ export async function activate(context: vscode.ExtensionContext) {
         treeDataProvider: provider,
     });
 
-    const configuration = await vscode.workspace.getConfiguration();
-
-    const selectedProfile = configuration.get("hidefiles.selectedProfile");
-
-    const myStatusBarItem = vscode.window.createStatusBarItem(
-        vscode.StatusBarAlignment.Left,
-        100
-    );
-    myStatusBarItem.command = "hidefiles.reloadConfig";
-    context.subscriptions.push(myStatusBarItem);
-    if (selectedProfile && selectedProfile !== "") {
-        myStatusBarItem.text = "Hide Files: " + selectedProfile;
-        myStatusBarItem.show();
-    }
-
     let disposableHideFile = vscode.commands.registerCommand(
         "hidefiles.hidefile",
         async (args: any) => {
@@ -37,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
             );
             await vscode.env.clipboard.writeText(text);
 
-            const config = await getData();
+            const config = await getDataUnmodified();
             const configuration = await vscode.workspace.getConfiguration();
             const selectedProfile = configuration.get(
                 "hidefiles.selectedProfile"
@@ -58,6 +43,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
                     return;
                 }
+                let added = [];
                 for (let filepath of paths) {
                     const file = await vscode.workspace.fs.stat(
                         vscode.Uri.file(filepath)
@@ -89,22 +75,28 @@ export async function activate(context: vscode.ExtensionContext) {
                         );
                     }
 
-                    console.log(folders[0].uri.fsPath, filepath);
-
                     if (file.type === vscode.FileType.File) {
                         //Add file
                         profile.hidden.push(formattedFilePath);
+                        added.push(formattedFilePath);
                     } else if (file.type === vscode.FileType.Directory) {
                         //Add directory
                         profile.hidden.push(formattedFilePath + "/");
+                        added.push(formattedFilePath + "/");
                     } else {
                         continue;
                     }
                 }
-                config.config.profiles.splice(0, 1);
-                writeConfig(config);
+
+                await writeConfig(config);
                 try {
-                    hideFiles(profile);
+                    const data = await getDataUnmodified();
+                    hideFiles(
+                        data.config.profiles.find(
+                            (c) => c.name === selectedProfile
+                        )
+                    );
+                    provider.refresh();
                 } catch (error) {
                     vscode.window.showInformationMessage(
                         "An error occurred while trying to hide files!"
@@ -154,6 +146,33 @@ export async function activate(context: vscode.ExtensionContext) {
             await createConfig(selected);
         }
     );
+    let disposableReloadView = vscode.commands.registerCommand(
+        "hidefiles.hiddenfiles.refresh",
+        async () => {
+            let config = await getData();
+            if (!config.config) {
+                return;
+            }
+            try {
+                const configuration = await vscode.workspace.getConfiguration();
+
+                const selectedProfile = configuration.get(
+                    "hidefiles.selectedProfile"
+                );
+                hideFiles(
+                    config.config.profiles.find(
+                        (p) => p.name === selectedProfile
+                    )
+                );
+            } catch (error) {
+                console.error(error);
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+            provider.refresh();
+        }
+    );
 
     let disposableReload = vscode.commands.registerCommand(
         "hidefiles.reloadConfig",
@@ -195,36 +214,207 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!selected) {
                 return;
             }
+            const configuration = await vscode.workspace.getConfiguration();
+            configuration.update(
+                "hidefiles.selectedProfile",
+                selected.name,
+                vscode.ConfigurationTarget.Global
+            );
 
             try {
                 hideFiles(selected);
+            } catch (error) {
+                console.error(error);
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+
+            provider.refresh();
+        }
+    );
+
+    let disposableProfileActivate = vscode.commands.registerCommand(
+        "hidefiles.tree.profile.activate",
+        async (a) => {
+            let config = await getData();
+
+            if (!config.config) {
+                vscode.window.showErrorMessage(
+                    "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
+                );
+                return;
+            }
+
+            const configuration = await vscode.workspace.getConfiguration();
+            await configuration.update(
+                "hidefiles.selectedProfile",
+                a.label,
+                vscode.ConfigurationTarget.Global
+            );
+            try {
+                if (a.label.startsWith("Show All Files")) {
+                    hideFiles(config.config.profiles[0]);
+                } else {
+                    hideFiles(
+                        config.config.profiles.find((c) => c.name === a.label)
+                    );
+                }
+            } catch (error) {
+                console.error(error);
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+
+            provider.refresh();
+        }
+    );
+
+    let disposableTreePeek = vscode.commands.registerCommand(
+        "hidefiles.tree.peek",
+        async (a) => {
+            let config = await getData();
+            let configUnmodified = await getDataUnmodified();
+
+            if (!config.config) {
+                vscode.window.showErrorMessage(
+                    "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
+                );
+                return;
+            }
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+
+            const profile = config.config.profiles.find(
+                (p) => p.name === selectedProfile
+            );
+            if (!profile.peek) {
+                profile.peek = [];
+            }
+            profile.peek.push(a.label);
+
+            const unmodifiedProfile = configUnmodified.config.profiles.find(
+                (p) => p.name === selectedProfile
+            );
+            if (!unmodifiedProfile.peek) {
+                unmodifiedProfile.peek = [];
+            }
+            unmodifiedProfile.peek.push(a.label);
+
+            try {
+                writeConfig(configUnmodified);
+                hideFiles(profile);
             } catch (error) {
                 vscode.window.showInformationMessage(
                     "An error occurred while trying to hide files!"
                 );
             }
 
-            if (selected.hidden.length !== 0) {
-                myStatusBarItem.text = "Hide Files: " + selected.name;
-                myStatusBarItem.show();
-                const configuration = await vscode.workspace.getConfiguration();
-                configuration.update(
-                    "hidefiles.selectedProfile",
-                    selected.name,
-                    vscode.ConfigurationTarget.Global
-                );
-            } else {
-                myStatusBarItem.hide();
-                const configuration = await vscode.workspace.getConfiguration();
-                configuration.update(
-                    "hidefiles.selectedProfile",
-                    "",
-                    vscode.ConfigurationTarget.Global
-                );
-            }
+            provider.refresh();
         }
     );
 
+    let disposableTreePeekUndo = vscode.commands.registerCommand(
+        "hidefiles.tree.peek.undo",
+        async (a) => {
+            let config = await getData();
+            let configUnmodified = await getDataUnmodified();
+
+            if (!config.config) {
+                vscode.window.showErrorMessage(
+                    "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
+                );
+                return;
+            }
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+
+            const profile = config.config.profiles.find(
+                (p) => p.name === selectedProfile
+            );
+            if (!profile.peek || !profile.peek.includes(a.label)) {
+                return;
+            }
+            profile.peek = profile.peek.filter((b) => b !== a.label);
+
+            const unmodifiedProfile = configUnmodified.config.profiles.find(
+                (p) => p.name === selectedProfile
+            );
+            if (
+                !unmodifiedProfile.peek ||
+                !unmodifiedProfile.peek.includes(a.label)
+            ) {
+                return;
+            }
+            unmodifiedProfile.peek = unmodifiedProfile.peek.filter(
+                (b) => b !== a.label
+            );
+
+            try {
+                writeConfig(configUnmodified);
+                hideFiles(profile);
+            } catch (error) {
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+
+            provider.refresh();
+        }
+    );
+
+    let disposableTreeRemove = vscode.commands.registerCommand(
+        "hidefiles.tree.remove",
+        async (a) => {
+            let config = await getData();
+            let configUnmodified = await getDataUnmodified();
+
+            if (!config.config) {
+                vscode.window.showErrorMessage(
+                    "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
+                );
+                return;
+            }
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+
+            const profile = config.config.profiles.find(
+                (p) => p.name === selectedProfile
+            );
+
+            profile.hidden = profile.hidden.filter((b) => b !== a.label);
+
+            const unmodifiedProfile = configUnmodified.config.profiles.find(
+                (p) => p.name === selectedProfile
+            );
+            unmodifiedProfile.hidden = unmodifiedProfile.hidden.filter(
+                (b) => b !== a.label
+            );
+
+            try {
+                writeConfig(configUnmodified);
+                hideFiles(profile);
+            } catch (error) {
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+
+            provider.refresh();
+        }
+    );
+    context.subscriptions.push(disposableTreeRemove);
+    context.subscriptions.push(disposableTreePeekUndo);
+    context.subscriptions.push(disposableTreePeek);
+    context.subscriptions.push(disposableProfileActivate);
+    context.subscriptions.push(disposableReloadView);
     context.subscriptions.push(disposableReload);
     context.subscriptions.push(disposableCreate);
     context.subscriptions.push(disposableDeactivate);

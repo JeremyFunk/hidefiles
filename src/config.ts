@@ -7,6 +7,7 @@ export interface Profile {
     description?: string;
     detail?: string;
     hidden: string[];
+    peek?: string[];
 }
 
 export interface Configuration {
@@ -38,7 +39,7 @@ export const getData = async (): Promise<ConfigurationFile | undefined> => {
             {
                 description: "",
                 hidden: [],
-                name: "Show all files $(globe)",
+                name: "Show All Files",
                 detail: "Shows all files without exception.",
             },
             ...data.profiles,
@@ -49,8 +50,25 @@ export const getData = async (): Promise<ConfigurationFile | undefined> => {
         config: data,
     };
 };
+export const getDataUnmodified = async (): Promise<
+    ConfigurationFile | undefined
+> => {
+    let data = getDataByLocalFile(false);
+    let location = ConfigurationLocation.Local;
 
-const getDataByGlobalConfig = async (): Promise<Configuration | undefined> => {
+    if (!data) {
+        data = await getDataByGlobalConfig(false);
+        location = ConfigurationLocation.Global;
+    }
+
+    return {
+        location: location,
+        config: data,
+    };
+};
+const getDataByGlobalConfig = async (
+    modified = true
+): Promise<Configuration | undefined> => {
     try {
         const workspaceConfig = await vscode.workspace.getConfiguration();
         const hidefilesConfig = workspaceConfig.inspect(
@@ -58,17 +76,15 @@ const getDataByGlobalConfig = async (): Promise<Configuration | undefined> => {
         );
 
         if (hidefilesConfig.globalValue) {
-            const res = getDataByConfigFile(
-                hidefilesConfig.globalValue as Configuration
-            );
-            return res;
+            const res = hidefilesConfig.globalValue as Configuration;
+            return modified ? getDataByConfigFile(res) : res;
         }
     } catch (e) {
         console.error(e);
     }
 };
 
-const getDataByLocalFile = (): Configuration | undefined => {
+const getDataByLocalFile = (modified = true): Configuration | undefined => {
     const folders = vscode.workspace.workspaceFolders;
     if (folders && folders.length > 0) {
         const path = `${folders[0].uri.fsPath}/hide-files.json`;
@@ -76,7 +92,7 @@ const getDataByLocalFile = (): Configuration | undefined => {
             try {
                 delete require.cache[require.resolve(path)];
                 const res = require(path) as Configuration;
-                return getDataByConfigFile(res);
+                return modified ? getDataByConfigFile(res) : res;
             } catch (er) {
                 console.log(er);
             }

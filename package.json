@@ -41,7 +41,7 @@
             ],
             "view/title": [
                 {
-                    "command": "hidefiles.hiddenfiles",
+                    "command": "hidefiles.hiddenfiles.refresh",
                     "when": "view == hidden-files",
                     "group": "navigation"
                 }
@@ -50,10 +50,38 @@
                 {
                     "command": "hidefiles.hidefile",
                     "when": "false"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "hidefiles.tree.peek",
+                    "when": "viewItem == hidefiles.file",
+                    "group": "inline"
                 },
                 {
-                    "command": "hidefiles.hiddenfiles",
-                    "when": "false"
+                    "command": "hidefiles.tree.peek.undo",
+                    "when": "viewItem == hidefiles.file.visible",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.remove",
+                    "when": "viewItem == hidefiles.file || viewItem == hidefiles.file.visible",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.subprofile.remove",
+                    "when": "viewItem == hidefiles.subprofile",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.activate",
+                    "when": "viewItem == hidefiles.profile.inactive || viewItem == hidefiles.profile.showall",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.add",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive",
+                    "group": "inline"
                 }
             ]
         },
@@ -75,8 +103,39 @@
                 "title": "Hide File"
             },
             {
-                "command": "hidefiles.hiddenfiles",
-                "title": "Hidden Files"
+                "command": "hidefiles.hiddenfiles.refresh",
+                "title": "Refresh",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "hidefiles.tree.peek.undo",
+                "title": "Hide",
+                "icon": "$(eye-closed)"
+            },
+            {
+                "command": "hidefiles.tree.peek",
+                "title": "Peek",
+                "icon": "$(eye)"
+            },
+            {
+                "command": "hidefiles.tree.remove",
+                "title": "Remove",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "hidefiles.subprofile.remove",
+                "title": "Remove",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "hidefiles.tree.profile.activate",
+                "title": "Activate",
+                "icon": "$(eye)"
+            },
+            {
+                "command": "hidefiles.tree.profile.add",
+                "title": "Add",
+                "icon": "$(add)"
             }
         ],
         "configuration": {
