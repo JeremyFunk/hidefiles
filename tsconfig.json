@@ -6,7 +6,7 @@
         "outDir": "out",
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "lib": ["es6", "ES2021.String"],
+        "lib": ["es6", "ES2021.String", "ES2019.Array"],
         "sourceMap": true,
         "rootDir": "src",
         "strict": false /* enable all strict type-checking options */

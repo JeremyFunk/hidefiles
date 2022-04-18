@@ -12,10 +12,12 @@ import {
 import { getDataUnmodified } from "./config";
 
 interface RecursiveFile {
+    activeProfile: boolean;
     file: string;
     fullFile: string;
     children: RecursiveFile[];
     isPeek: boolean;
+    profile: string;
 }
 
 export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
@@ -44,6 +46,8 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                     children: [],
                     fullFile: c.name,
                     isPeek: false,
+                    activeProfile: false,
+                    profile: c.name,
                 };
 
                 c.hidden.forEach((h) => {
@@ -68,12 +72,14 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                                 file += "/";
                             }
                             newFile = {
+                                activeProfile: c.name === selectedProfile,
                                 file: file,
                                 children: [],
                                 fullFile: fullFile,
                                 isPeek: c.peek
                                     ? c.peek.includes(fullFile)
                                     : false,
+                                profile: c.name,
                             };
                             lastPart.children.push(newFile);
                         }
@@ -92,13 +98,16 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                         arguments: [file.fullFile],
                     },
                     file.children,
-                    true,
-                    file.file === selectedProfile
+                    {
+                        active: file.file === selectedProfile,
+                        showAll: false,
+                        peek: false,
+                        type: FileType.Profile,
+                    }
                 );
 
                 return item;
             });
-
             return [
                 new File(
                     "Show All Files",
@@ -108,9 +117,12 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                         arguments: ["Show All Files"],
                     },
                     [],
-                    true,
-                    false,
-                    true
+                    {
+                        active: selectedProfile === "Show All Files",
+                        showAll: true,
+                        peek: false,
+                        type: FileType.Profile,
+                    }
                 ),
                 ...profiles,
             ];
@@ -123,13 +135,17 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                             {
                                 command: "hide-files.show",
                                 title: "Show",
-                                arguments: [c.file],
+                                arguments: [c.file, c.profile],
                             },
                             c.children,
-                            false,
-                            false,
-                            false,
-                            c.isPeek
+                            {
+                                active: c.activeProfile,
+                                showAll: false,
+                                peek: c.isPeek,
+                                type: c.file.startsWith("$")
+                                    ? FileType.Subprofile
+                                    : FileType.File,
+                            }
                         )
                 )
                 .sort(
@@ -153,16 +169,26 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
         this._onDidChangeTreeData.fire();
     }
 }
+
+const enum FileType {
+    Profile,
+    File,
+    Subprofile,
+}
+interface FileData {
+    type: FileType;
+    active: boolean; // If the profile is active
+    showAll: boolean; // Is this profile the show-all profile (default)?
+    peek: boolean; // Is this file visible (peeked)?
+}
+
 class File extends TreeItem {
     children: RecursiveFile[];
     constructor(
         public readonly label: string,
         command: Command,
         children: RecursiveFile[],
-        profile?: boolean,
-        active?: boolean,
-        showAll?: boolean,
-        peek?: boolean
+        data: FileData
     ) {
         super(
             label,
@@ -172,35 +198,38 @@ class File extends TreeItem {
         );
         this.children = children;
         this.command = command;
-        if (showAll) {
-            this.iconPath = new ThemeIcon("globe");
-            this.contextValue = "hidefiles.profile.showall";
-        } else if (profile) {
-            this.iconPath = new ThemeIcon("symbol-class");
-            if (!active) {
-                this.contextValue = "hidefiles.profile.inactive";
+
+        if (data.type === FileType.Profile) {
+            if (data.showAll) {
+                this.iconPath = new ThemeIcon("globe");
+                this.contextValue = data.active
+                    ? "hidefiles.profile.showall.active"
+                    : "hidefiles.profile.showall";
             } else {
-                this.label += " (Active)";
-                this.contextValue = "hidefiles.profile.active";
+                this.iconPath = new ThemeIcon("symbol-class");
+                this.contextValue = data.active
+                    ? "hidefiles.profile.active"
+                    : "hidefiles.profile.inactive";
             }
-        } else if (label.startsWith("$")) {
-            this.iconPath = new ThemeIcon("archive");
+
+            if (data.active) {
+                this.label += " (Active)";
+            }
+        } else if (data.type === FileType.Subprofile) {
+            this.iconPath = new ThemeIcon("symbol-class");
             this.label = "Profile " + label.substring(1);
             this.contextValue = "hidefiles.subprofile";
-        } else if (children.length > 0 || label.endsWith("/")) {
-            this.iconPath = new ThemeIcon("file-directory");
-            if (peek) {
-                this.contextValue = "hidefiles.file.visible";
-            } else {
-                this.contextValue = "hidefiles.file";
-            }
-        } else {
-            this.iconPath = new ThemeIcon("file");
-            if (peek) {
-                this.contextValue = "hidefiles.file.visible";
-            } else {
-                this.contextValue = "hidefiles.file";
-            }
+        } else if (data.type === FileType.File) {
+            const activeStatus = data.active ? "active" : "inactive";
+
+            this.contextValue = data.peek
+                ? `hidefiles.file.${activeStatus}.visible`
+                : `hidefiles.file.${activeStatus}`;
+
+            const isFolder = children.length > 0 || label.endsWith("/");
+            this.iconPath = isFolder
+                ? new ThemeIcon("file-directory")
+                : new ThemeIcon("file");
         }
     }
 }

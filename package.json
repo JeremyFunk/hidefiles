@@ -44,6 +44,11 @@
                     "command": "hidefiles.hiddenfiles.refresh",
                     "when": "view == hidden-files",
                     "group": "navigation"
+                },
+                {
+                    "command": "hidefiles.hiddenfiles.add",
+                    "when": "view == hidden-files",
+                    "group": "navigation"
                 }
             ],
             "commandPalette": [
@@ -55,17 +60,17 @@
             "view/item/context": [
                 {
                     "command": "hidefiles.tree.peek",
-                    "when": "viewItem == hidefiles.file",
+                    "when": "viewItem == hidefiles.file.active",
                     "group": "inline"
                 },
                 {
                     "command": "hidefiles.tree.peek.undo",
-                    "when": "viewItem == hidefiles.file.visible",
+                    "when": "viewItem == hidefiles.file.active.visible",
                     "group": "inline"
                 },
                 {
                     "command": "hidefiles.tree.remove",
-                    "when": "viewItem == hidefiles.file || viewItem == hidefiles.file.visible",
+                    "when": "viewItem == hidefiles.file.active || viewItem == hidefiles.file.active.visible || viewItem == hidefiles.file.inactive || viewItem == hidefiles.file.inactive.visible",
                     "group": "inline"
                 },
                 {
@@ -80,8 +85,15 @@
                 },
                 {
                     "command": "hidefiles.tree.profile.add",
-                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive",
-                    "group": "inline"
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
+                },
+                {
+                    "command": "hidefiles.tree.profile.delete",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
+                },
+                {
+                    "command": "hidefiles.tree.profile.rename",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
                 }
             ]
         },
@@ -106,6 +118,11 @@
                 "command": "hidefiles.hiddenfiles.refresh",
                 "title": "Refresh",
                 "icon": "$(refresh)"
+            },
+            {
+                "command": "hidefiles.hiddenfiles.add",
+                "title": "Add",
+                "icon": "$(add)"
             },
             {
                 "command": "hidefiles.tree.peek.undo",
@@ -134,7 +151,17 @@
             },
             {
                 "command": "hidefiles.tree.profile.add",
-                "title": "Add",
+                "title": "Add profile as dependency",
+                "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.profile.delete",
+                "title": "Delete profile",
+                "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.profile.rename",
+                "title": "Rename profile",
                 "icon": "$(add)"
             }
         ],

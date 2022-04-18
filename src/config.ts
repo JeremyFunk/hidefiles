@@ -187,10 +187,9 @@ const recursivelyResolveHidden = (
 export const writeConfig = async (config: ConfigurationFile) => {
     if (config.location === ConfigurationLocation.Local) {
         const folders = vscode.workspace.workspaceFolders;
-        fs.writeFile(
+        await fs.promises.writeFile(
             `${folders[0].uri.fsPath}/hide-files.json`,
-            JSON.stringify(config.config),
-            () => {}
+            JSON.stringify(config.config)
         );
     } else {
         try {
@@ -205,7 +204,7 @@ export const writeConfig = async (config: ConfigurationFile) => {
                 target = vscode.ConfigurationTarget.Workspace;
             }
 
-            workspaceConfig.update(
+            await workspaceConfig.update(
                 "hidefiles.globalConfig",
                 config.config,
                 target

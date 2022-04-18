@@ -5,25 +5,7 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/CVS": true,
-        "**/.DS_Store": true,
-        "node_modules/": true,
-        ".vscode/": true,
-        ".storybook/": true,
-        ".github/": true,
-        "electron-builder.yml": true,
-        "graphql.schema.json": true,
-        "import-sorter.json": true,
-        "jest.config.ts": true,
-        "plopfile.ts": true,
-        "generators/": true,
-        ".babelrc": true,
-        ".eslintrc.js": true,
-        ".prettierrc": true,
-        "codegen.yml": true,
-        "README.md": true,
-        "tsconfig.json": true,
-        "pacakge.json": true,
-        "yarn.lock": true
+        "**/.DS_Store": true
     },
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
