@@ -33,6 +33,28 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
     async getChildren(element?: File) {
         if (!element) {
             const files = await getDataUnmodified();
+            const vscodeConfig = await workspace.getConfiguration("hidefiles");
+            const setup = vscodeConfig.inspect("configurationType");
+            if (!files.config || !setup.workspaceValue) {
+                return [
+                    new File(
+                        "Setup Hide Files",
+                        {
+                            command: "hidefiles.setup",
+                            title: "Show",
+                            arguments: ["Setup Hide Files"],
+                        },
+                        [],
+                        {
+                            active: false,
+                            showAll: true,
+                            peek: false,
+                            type: FileType.Profile,
+                        }
+                    ),
+                ];
+            }
+
             this.transformedFiles = [];
             const configuration = await workspace.getConfiguration();
 
@@ -95,7 +117,7 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                     {
                         command: "hide-files.show",
                         title: "Show",
-                        arguments: [file.fullFile],
+                        arguments: [file.fullFile, file.profile],
                     },
                     file.children,
                     {
@@ -174,6 +196,7 @@ const enum FileType {
     Profile,
     File,
     Subprofile,
+    Setup,
 }
 interface FileData {
     type: FileType;
@@ -230,6 +253,9 @@ class File extends TreeItem {
             this.iconPath = isFolder
                 ? new ThemeIcon("file-directory")
                 : new ThemeIcon("file");
+        } else if (data.type === FileType.Setup) {
+            this.contextValue = "hidefiles.setup";
+            this.iconPath = new ThemeIcon("gear");
         }
     }
 }

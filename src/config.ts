@@ -26,12 +26,18 @@ export interface ConfigurationFile {
 export const setData = async (config: Configuration) => {};
 
 export const getData = async (): Promise<ConfigurationFile | undefined> => {
-    let data = getDataByLocalFile();
-    let location = ConfigurationLocation.Local;
+    let data;
 
-    if (!data) {
+    const workspaceConfig = await vscode.workspace.getConfiguration();
+    const hidefilesConfig = workspaceConfig.inspect(
+        "hidefiles.configurationType"
+    );
+    let location = ConfigurationLocation.Local;
+    if (hidefilesConfig.workspaceValue === "global") {
         data = await getDataByGlobalConfig();
         location = ConfigurationLocation.Global;
+    } else {
+        data = getDataByLocalFile();
     }
 
     if (data) {
@@ -53,12 +59,18 @@ export const getData = async (): Promise<ConfigurationFile | undefined> => {
 export const getDataUnmodified = async (): Promise<
     ConfigurationFile | undefined
 > => {
-    let data = getDataByLocalFile(false);
-    let location = ConfigurationLocation.Local;
+    let data;
 
-    if (!data) {
+    const workspaceConfig = await vscode.workspace.getConfiguration();
+    const hidefilesConfig = workspaceConfig.inspect(
+        "hidefiles.configurationType"
+    );
+    let location = ConfigurationLocation.Local;
+    if (hidefilesConfig.workspaceValue === "global") {
         data = await getDataByGlobalConfig(false);
         location = ConfigurationLocation.Global;
+    } else {
+        data = getDataByLocalFile(false);
     }
 
     return {
@@ -104,6 +116,7 @@ const getDataByConfigFile = (
     fileContent: Configuration
 ): Configuration | undefined => {
     let err = false;
+    console.log(fileContent);
     fileContent.profiles.some((profile) => {
         if (!profile.detail) {
             let hasLinks = false;
@@ -194,20 +207,11 @@ export const writeConfig = async (config: ConfigurationFile) => {
     } else {
         try {
             const workspaceConfig = await vscode.workspace.getConfiguration();
-            const workspace = workspaceConfig.inspect(
-                "hidefiles.globalConfig"
-            ).workspaceValue;
-
-            let target = vscode.ConfigurationTarget.Global;
-
-            if (global) {
-                target = vscode.ConfigurationTarget.Workspace;
-            }
 
             await workspaceConfig.update(
                 "hidefiles.globalConfig",
                 config.config,
-                target
+                vscode.ConfigurationTarget.Global
             );
         } catch (e) {
             console.error(e);

@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/semi */
 import * as vscode from "vscode";
-import { getData, getDataUnmodified, writeConfig } from "./config";
+import {
+    ConfigurationLocation,
+    getData,
+    getDataUnmodified,
+    writeConfig,
+} from "./config";
 import { hideFiles } from "./core";
 import { createConfig, getConfigs } from "./create";
 import { HiddenFilesProvider } from "./tree";
@@ -220,7 +225,7 @@ export async function activate(context: vscode.ExtensionContext) {
             configuration.update(
                 "hidefiles.selectedProfile",
                 selected.name,
-                vscode.ConfigurationTarget.Global
+                vscode.ConfigurationTarget.Workspace
             );
 
             try {
@@ -250,7 +255,7 @@ export async function activate(context: vscode.ExtensionContext) {
             await configuration.update(
                 "hidefiles.selectedProfile",
                 a.label,
-                vscode.ConfigurationTarget.Global
+                vscode.ConfigurationTarget.Workspace
             );
             try {
                 if (a.label.startsWith("Show All Files")) {
@@ -709,6 +714,152 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
+    let disposableUpProfile = vscode.commands.registerCommand(
+        "hidefiles.tree.profile.up",
+        async (a) => {
+            let configUnmodified = await getDataUnmodified();
+
+            if (!configUnmodified.config) {
+                vscode.window.showErrorMessage(
+                    "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
+                );
+                return;
+            }
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+
+            const index = configUnmodified.config.profiles.findIndex(
+                (b) => b.name === a.command.arguments[1]
+            );
+            if (index === 0 || index === -1) {
+                return;
+            }
+            const temp = configUnmodified.config.profiles[index];
+            configUnmodified.config.profiles[index] =
+                configUnmodified.config.profiles[index - 1];
+            configUnmodified.config.profiles[index - 1] = temp;
+            try {
+                await writeConfig(configUnmodified);
+                refreshHideFiles(selectedProfile);
+            } catch (error) {
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+        }
+    );
+
+    let disposableDownProfile = vscode.commands.registerCommand(
+        "hidefiles.tree.profile.down",
+        async (a) => {
+            let configUnmodified = await getDataUnmodified();
+
+            if (!configUnmodified.config) {
+                vscode.window.showErrorMessage(
+                    "An error occured while loading the hide-files.json config file! Make sure the file exists in the root directory of the workspace, not in a sub-folder and is called hide-files.json!"
+                );
+                return;
+            }
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+
+            const index = configUnmodified.config.profiles.findIndex(
+                (b) => b.name === a.command.arguments[1]
+            );
+            if (
+                index === configUnmodified.config.profiles.length - 1 ||
+                index === -1
+            ) {
+                return;
+            }
+            const temp = configUnmodified.config.profiles[index];
+            configUnmodified.config.profiles[index] =
+                configUnmodified.config.profiles[index + 1];
+            configUnmodified.config.profiles[index + 1] = temp;
+            try {
+                await writeConfig(configUnmodified);
+                refreshHideFiles(selectedProfile);
+            } catch (error) {
+                vscode.window.showInformationMessage(
+                    "An error occurred while trying to hide files!"
+                );
+            }
+        }
+    );
+
+    let disposableSetup = vscode.commands.registerCommand(
+        "hidefiles.setup",
+        async (a) => {
+            let items: vscode.QuickPickItem[] = [
+                {
+                    label: "Global Setup",
+                },
+                {
+                    label: "Local Setup",
+                },
+            ];
+
+            const selection = await vscode.window.showQuickPick(items, {
+                title: "Setup HideFiles",
+            });
+            // the user canceled the selection
+            if (!selection) {
+                return;
+            }
+
+            let value = "";
+            let type: vscode.ConfigurationTarget;
+            if (selection.label.trim() === "Global Setup") {
+                value = "global";
+                type = vscode.ConfigurationTarget.Global;
+            } else if (selection.label.trim() === "Local Setup") {
+                value = "local";
+                type = vscode.ConfigurationTarget.Workspace;
+            } else {
+                return;
+            }
+
+            const configuration = await vscode.workspace.getConfiguration(
+                "hidefiles"
+            );
+            const setup = configuration.inspect("configurationType");
+
+            if (!setup.workspaceValue) {
+                await configuration.update(
+                    "configurationType",
+                    value,
+                    vscode.ConfigurationTarget.Workspace
+                );
+            }
+
+            const configData = configuration.inspect("globalConfig");
+            if (type === vscode.ConfigurationTarget.Global) {
+                if (!configData.globalValue) {
+                    await configuration.update(
+                        "globalConfig",
+                        getConfigs()[0].content,
+                        type
+                    );
+                }
+            } else {
+                if (!configData.workspaceValue) {
+                    await writeConfig({
+                        config: getConfigs()[0].content,
+                        location: ConfigurationLocation.Local,
+                    });
+                }
+            }
+            refreshHideFiles("Show All Files");
+        }
+    );
+
+    context.subscriptions.push(disposableSetup);
+    context.subscriptions.push(disposableDownProfile);
+    context.subscriptions.push(disposableUpProfile);
     context.subscriptions.push(disposableRenoveSubprofile);
     context.subscriptions.push(disposableAddSubprofile);
     context.subscriptions.push(disposableDeleteProfile);

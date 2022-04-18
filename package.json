@@ -92,8 +92,22 @@
                     "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
                 },
                 {
+                    "command": "hidefiles.tree.profile.up",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.down",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive",
+                    "group": "inline"
+                },
+                {
                     "command": "hidefiles.tree.profile.rename",
                     "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
+                },
+                {
+                    "command": "hidefiles.setup",
+                    "when": "viewItem == hidefiles.setup"
                 }
             ]
         },
@@ -163,6 +177,20 @@
                 "command": "hidefiles.tree.profile.rename",
                 "title": "Rename profile",
                 "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.profile.up",
+                "title": "Rename profile",
+                "icon": "$(arrow-up)"
+            },
+            {
+                "command": "hidefiles.tree.profile.down",
+                "title": "Rename profile",
+                "icon": "$(arrow-down)"
+            },
+            {
+                "command": "hidefiles.setup",
+                "title": "Setup HideFiles"
             }
         ],
         "configuration": {
@@ -195,6 +223,11 @@
                 "hidefiles.selectedProfile": {
                     "type": "string",
                     "description": "The selected profile"
+                },
+                "hidefiles.configurationType": {
+                    "type": "string",
+                    "description": "The configuration type",
+                    "default": "global"
                 }
             }
         }
