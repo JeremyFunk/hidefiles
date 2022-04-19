@@ -150,14 +150,6 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {}
     );
 
-    let disposableDeactivate = vscode.commands.registerCommand(
-        "hidefiles.deactivate",
-        async () => {
-            const files = await (await getData()).config;
-            hideFiles(files.profiles[0]);
-        }
-    );
-
     let disposableReloadView = vscode.commands.registerCommand(
         "hidefiles.hiddenfiles.refresh",
         async () => {
@@ -871,7 +863,6 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposableProfileActivate);
     context.subscriptions.push(disposableReloadView);
     context.subscriptions.push(disposableReload);
-    context.subscriptions.push(disposableDeactivate);
     context.subscriptions.push(disposableHideFile);
     context.subscriptions.push(disposableHiddenFiles);
 }

@@ -14,8 +14,7 @@
     "activationEvents": [
         "onView:hidden-files",
         "onCommand:hidefiles.reloadConfig",
-        "onCommand:hidefiles.deactivate",
-        "onStartupFinished:hidefiles.deactivate"
+        "onStartupFinished"
     ],
     "keywords": [
         "Files",
@@ -115,10 +114,6 @@
             {
                 "command": "hidefiles.reloadConfig",
                 "title": "Hide Files: Reload Profile"
-            },
-            {
-                "command": "hidefiles.deactivate",
-                "title": "Hide Files: Deactivate"
             },
             {
                 "command": "hidefiles.hidefile",
