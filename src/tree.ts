@@ -49,9 +49,24 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                             active: false,
                             showAll: true,
                             peek: false,
-                            type: FileType.Profile,
+                            type: FileType.Setup,
                         }
                     ),
+                    new File(
+                        "Setup Hide Files Globally",
+                        {
+                            command: "hidefiles.setup",
+                            title: "Show",
+                            arguments: ["Setup Hide Files Globally"],
+                        },
+                        [],
+                        {
+                            active: false,
+                            showAll: true,
+                            peek: false,
+                            type: FileType.Setup,
+                        }
+                    )
                 ];
             }
 

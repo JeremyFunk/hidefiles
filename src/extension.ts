@@ -17,6 +17,38 @@ export async function activate(context: vscode.ExtensionContext) {
         treeDataProvider: provider,
     });
 
+    try{
+        const configuration = await vscode.workspace.getConfiguration();
+        const version = configuration.inspect(
+            "hidefiles.version"
+        );
+        if(!version.globalValue || version.globalValue !== '2.0.0'){
+            const result = await vscode.window.showInformationMessage("HideFiles got an update!", "Show more!", "Don't show again!")
+            if(result === "Show more!"){
+                vscode.env.openExternal(vscode.Uri.parse("https://marketplace.visualstudio.com/items?itemName=JeremyFunk.hidefiles"))
+            }else if(result === "Don't show again!"){
+                configuration.update("hidefiles.version", "2.0.0", vscode.ConfigurationTarget.Global)
+            }
+        }else{
+            const configuration = await vscode.workspace.getConfiguration();
+            const selectedProfile = configuration.get(
+                "hidefiles.selectedProfile"
+            );
+            if (selectedProfile && selectedProfile !== "") {
+                try{
+                    const data = await getData();
+                    hideFiles(data.config.profiles.find((c) => c.name === selectedProfile));
+                }catch{
+
+                }
+            }
+        }
+    }catch{
+
+    }
+    
+
+
     const refreshHideFiles = async (profile) => {
         const data = await getData();
         hideFiles(data.config.profiles.find((c) => c.name === profile));
@@ -379,16 +411,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 );
                 return;
             }
-            const selectedProfile = a.command.arguments[1];
+            const clickedProfile = a.command.arguments[1];
 
             const profile = config.config.profiles.find(
-                (p) => p.name === selectedProfile
+                (p) => p.name === clickedProfile
             );
 
             profile.hidden = profile.hidden.filter((b) => b !== a.label);
 
             const unmodifiedProfile = configUnmodified.config.profiles.find(
-                (p) => p.name === selectedProfile
+                (p) => p.name === clickedProfile
             );
             unmodifiedProfile.hidden = unmodifiedProfile.hidden.filter(
                 (b) => b !== a.label
@@ -396,14 +428,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
             try {
                 await writeConfig(configUnmodified);
-                hideFiles(profile);
+                const configuration = vscode.workspace.getConfiguration()
+                const selectedProfile = configuration.get(
+                    "hidefiles.selectedProfile"
+                );
+                refreshHideFiles(selectedProfile)
             } catch (error) {
                 vscode.window.showInformationMessage(
                     "An error occurred while trying to hide files!"
                 );
             }
-
-            provider.refresh();
         }
     );
 
@@ -482,18 +516,30 @@ export async function activate(context: vscode.ExtensionContext) {
 
             configUnmodified.config.profiles =
                 configUnmodified.config.profiles.filter(
-                    (p) => p.name !== a.label
+                    (p) => p.name !== a.command.arguments[1]
                 );
+            configUnmodified.config.profiles.forEach(p => {
+                p.hidden = p.hidden.filter((h) => {
+                    if(h.startsWith("$") && h.substring(1) === a.command.arguments[1])
+                    {
+                        return false
+                    }
+                    return true
+                })
+            })
 
             try {
                 await writeConfig(configUnmodified);
+                const configuration = vscode.workspace.getConfiguration()
+                const selectedProfile = configuration.get(
+                    "hidefiles.selectedProfile"
+                );
+                refreshHideFiles(selectedProfile)
             } catch (error) {
                 vscode.window.showInformationMessage(
                     "An error occurred while trying to hide files!"
                 );
             }
-
-            provider.refresh();
         }
     );
 
@@ -577,12 +623,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
             try {
                 await writeConfig(configUnmodified);
-
-                let config = await getData();
-                const profile = config.config.profiles.find(
-                    (p) => p.name === selectedProfile
+                
+                const configuration = vscode.workspace.getConfiguration()
+                const selectedProfile = configuration.get(
+                    "hidefiles.selectedProfile"
                 );
-                hideFiles(profile);
+                refreshHideFiles(selectedProfile)
             } catch (error) {
                 vscode.window.showInformationMessage(
                     "An error occurred while trying to hide files!"
@@ -794,29 +840,12 @@ export async function activate(context: vscode.ExtensionContext) {
     let disposableSetup = vscode.commands.registerCommand(
         "hidefiles.setup",
         async (a) => {
-            let items: vscode.QuickPickItem[] = [
-                {
-                    label: "Global Setup",
-                },
-                {
-                    label: "Local Setup",
-                },
-            ];
-
-            const selection = await vscode.window.showQuickPick(items, {
-                title: "Setup HideFiles",
-            });
-            // the user canceled the selection
-            if (!selection) {
-                return;
-            }
-
             let value = "";
             let type: vscode.ConfigurationTarget;
-            if (selection.label.trim() === "Global Setup") {
+            if (a === "Setup Hide Files Globally") {
                 value = "global";
                 type = vscode.ConfigurationTarget.Global;
-            } else if (selection.label.trim() === "Local Setup") {
+            } else if (a === "Setup Hide Files") {
                 value = "local";
                 type = vscode.ConfigurationTarget.Workspace;
             } else {
@@ -826,15 +855,11 @@ export async function activate(context: vscode.ExtensionContext) {
             const configuration = await vscode.workspace.getConfiguration(
                 "hidefiles"
             );
-            const setup = configuration.inspect("configurationType");
-
-            if (!setup.workspaceValue) {
-                await configuration.update(
-                    "configurationType",
-                    value,
-                    vscode.ConfigurationTarget.Workspace
-                );
-            }
+            await configuration.update(
+                "configurationType",
+                value,
+                vscode.ConfigurationTarget.Workspace
+            );
 
             const configData = configuration.inspect("globalConfig");
             if (type === vscode.ConfigurationTarget.Global) {
@@ -854,9 +879,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
             refreshHideFiles("Show All Files");
+
+            const version = configuration.inspect(
+                "version"
+            );
+            if(!version.globalValue || version.globalValue !== '2.0.0'){
+                configuration.update("version", "2.0.0", vscode.ConfigurationTarget.Global)
+            }
         }
     );
-
+    
     context.subscriptions.push(disposableSetup);
     context.subscriptions.push(disposableDownProfile);
     context.subscriptions.push(disposableUpProfile);

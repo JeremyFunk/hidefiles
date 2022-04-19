@@ -15,7 +15,8 @@
         "onView:hidden-files",
         "onCommand:hidefiles.reloadConfig",
         "onCommand:hidefiles.createConfig",
-        "onCommand:hidefiles.deactivate"
+        "onCommand:hidefiles.deactivate",
+        "onStartupFinished:hidefiles.deactivate"
     ],
     "keywords": [
         "Files",
@@ -228,6 +229,10 @@
                     "type": "string",
                     "description": "The configuration type",
                     "default": "global"
+                },
+                "hidefiles.version": {
+                    "type": "string",
+                    "description": "HideFiles version"
                 }
             }
         }

@@ -202,7 +202,7 @@ export const writeConfig = async (config: ConfigurationFile) => {
         const folders = vscode.workspace.workspaceFolders;
         await fs.promises.writeFile(
             `${folders[0].uri.fsPath}/hide-files.json`,
-            JSON.stringify(config.config)
+            JSON.stringify(config.config, null, 4)
         );
     } else {
         try {
