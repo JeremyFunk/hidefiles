@@ -1,24 +1,19 @@
 {
-	"compilerOptions": {
-		"skipLibCheck": true,
-		"module": "commonjs",
-		"target": "es6",
-		"outDir": "out",
-		"resolveJsonModule": true,
-		"esModuleInterop": true,
-		"lib": [
-			"es6"
-		],
-		"sourceMap": true,
-		"rootDir": "src",
-		"strict": false   /* enable all strict type-checking options */
-		/* Additional Checks */
-		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
-	},
-	"exclude": [
-		"node_modules/",
-		".vscode-test"
-	]
+    "compilerOptions": {
+        "skipLibCheck": true,
+        "module": "commonjs",
+        "target": "es6",
+        "outDir": "out",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "lib": ["es6", "ES2021.String", "ES2019.Array"],
+        "sourceMap": true,
+        "rootDir": "src",
+        "strict": false /* enable all strict type-checking options */
+        /* Additional Checks */
+        // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+        // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+        // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+    },
+    "exclude": ["node_modules/", ".vscode-test"]
 }

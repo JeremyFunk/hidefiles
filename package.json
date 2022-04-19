@@ -2,7 +2,7 @@
     "name": "hidefiles",
     "displayName": "Hide Files",
     "description": "User configurable profiles that hide certain files.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.58.1"
@@ -12,9 +12,9 @@
         "Visualization"
     ],
     "activationEvents": [
+        "onView:hidden-files",
         "onCommand:hidefiles.reloadConfig",
-        "onCommand:hidefiles.createConfig",
-        "onCommand:hidefiles.deactivate"
+        "onStartupFinished"
     ],
     "keywords": [
         "Files",
@@ -23,18 +23,165 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
+        "views": {
+            "explorer": [
+                {
+                    "id": "hidden-files",
+                    "name": "Hidden files"
+                }
+            ]
+        },
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "hidefiles.hidefile",
+                    "group": "5_cutcopypaste@1000"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "hidefiles.hiddenfiles.refresh",
+                    "when": "view == hidden-files",
+                    "group": "navigation"
+                },
+                {
+                    "command": "hidefiles.hiddenfiles.add",
+                    "when": "view == hidden-files",
+                    "group": "navigation"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "hidefiles.hidefile",
+                    "when": "false"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "hidefiles.tree.peek",
+                    "when": "viewItem == hidefiles.file.active",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.peek.undo",
+                    "when": "viewItem == hidefiles.file.active.visible",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.remove",
+                    "when": "viewItem == hidefiles.file.active || viewItem == hidefiles.file.active.visible || viewItem == hidefiles.file.inactive || viewItem == hidefiles.file.inactive.visible",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.subprofile.remove",
+                    "when": "viewItem == hidefiles.subprofile",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.activate",
+                    "when": "viewItem == hidefiles.profile.inactive || viewItem == hidefiles.profile.showall",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.add",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
+                },
+                {
+                    "command": "hidefiles.tree.profile.delete",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
+                },
+                {
+                    "command": "hidefiles.tree.profile.up",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.down",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive",
+                    "group": "inline"
+                },
+                {
+                    "command": "hidefiles.tree.profile.rename",
+                    "when": "viewItem == hidefiles.profile.active || viewItem == hidefiles.profile.inactive"
+                },
+                {
+                    "command": "hidefiles.setup",
+                    "when": "viewItem == hidefiles.setup"
+                }
+            ]
+        },
         "commands": [
             {
                 "command": "hidefiles.reloadConfig",
-                "title": "Hide Files: Reload"
+                "title": "Hide Files: Reload Profile"
             },
             {
-                "command": "hidefiles.createConfig",
-                "title": "Hide Files: Create Config"
+                "command": "hidefiles.hidefile",
+                "title": "Hide File"
             },
             {
-                "command": "hidefiles.deactivate",
-                "title": "Hide Files: Deactivate"
+                "command": "hidefiles.hiddenfiles.refresh",
+                "title": "Refresh",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "hidefiles.hiddenfiles.add",
+                "title": "Add",
+                "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.peek.undo",
+                "title": "Hide",
+                "icon": "$(eye-closed)"
+            },
+            {
+                "command": "hidefiles.tree.peek",
+                "title": "Peek",
+                "icon": "$(eye)"
+            },
+            {
+                "command": "hidefiles.tree.remove",
+                "title": "Remove",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "hidefiles.subprofile.remove",
+                "title": "Remove",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "hidefiles.tree.profile.activate",
+                "title": "Activate",
+                "icon": "$(eye)"
+            },
+            {
+                "command": "hidefiles.tree.profile.add",
+                "title": "Add profile as dependency",
+                "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.profile.delete",
+                "title": "Delete profile",
+                "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.profile.rename",
+                "title": "Rename profile",
+                "icon": "$(add)"
+            },
+            {
+                "command": "hidefiles.tree.profile.up",
+                "title": "Rename profile",
+                "icon": "$(arrow-up)"
+            },
+            {
+                "command": "hidefiles.tree.profile.down",
+                "title": "Rename profile",
+                "icon": "$(arrow-down)"
+            },
+            {
+                "command": "hidefiles.setup",
+                "title": "Setup HideFiles"
             }
         ],
         "configuration": {
@@ -63,6 +210,19 @@
                         ]
                     },
                     "description": "The default order level of everything which is not included into rules"
+                },
+                "hidefiles.selectedProfile": {
+                    "type": "string",
+                    "description": "The selected profile"
+                },
+                "hidefiles.configurationType": {
+                    "type": "string",
+                    "description": "The configuration type",
+                    "default": "global"
+                },
+                "hidefiles.version": {
+                    "type": "string",
+                    "description": "HideFiles version"
                 }
             }
         }
