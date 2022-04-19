@@ -158,37 +158,6 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    let disposableCreate = vscode.commands.registerCommand(
-        "hidefiles.createConfig",
-        async () => {
-            const files = getConfigs();
-
-            let items: vscode.QuickPickItem[] = [];
-
-            files.forEach((f) => {
-                items.push({
-                    label: f.name,
-                    description: f.description || "Create config file",
-                    detail: f.details,
-                });
-            });
-
-            const selection = await vscode.window.showQuickPick(items);
-            if (!selection) {
-                return;
-            }
-
-            const selected = files.find((s) => s.name === selection.label);
-            if (!selected) {
-                vscode.window.showErrorMessage(
-                    "Could not find profile " + selection.label + "!"
-                );
-                return;
-            }
-
-            await createConfig(selected);
-        }
-    );
     let disposableReloadView = vscode.commands.registerCommand(
         "hidefiles.hiddenfiles.refresh",
         async () => {
@@ -254,14 +223,14 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             }
             const configuration = await vscode.workspace.getConfiguration();
-            configuration.update(
+            await configuration.update(
                 "hidefiles.selectedProfile",
                 selected.name,
                 vscode.ConfigurationTarget.Workspace
             );
 
             try {
-                refreshHideFiles(selected);
+                refreshHideFiles(selection.label);
             } catch (error) {
                 console.error(error);
                 vscode.window.showInformationMessage(
@@ -902,7 +871,6 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposableProfileActivate);
     context.subscriptions.push(disposableReloadView);
     context.subscriptions.push(disposableReload);
-    context.subscriptions.push(disposableCreate);
     context.subscriptions.push(disposableDeactivate);
     context.subscriptions.push(disposableHideFile);
     context.subscriptions.push(disposableHiddenFiles);
