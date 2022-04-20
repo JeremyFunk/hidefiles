@@ -116,7 +116,6 @@ const getDataByConfigFile = (
     fileContent: Configuration
 ): Configuration | undefined => {
     let err = false;
-    console.log(fileContent);
     fileContent.profiles.some((profile) => {
         if (!profile.detail) {
             let hasLinks = false;
@@ -217,4 +216,12 @@ export const writeConfig = async (config: ConfigurationFile) => {
             console.error(e);
         }
     }
+};
+
+export const configExists = (): boolean => {
+    const folders = vscode.workspace.workspaceFolders;
+    if (fs.existsSync(`${folders[0].uri.fsPath}/hide-files.json`)) {
+        return true;
+    }
+    return false;
 };

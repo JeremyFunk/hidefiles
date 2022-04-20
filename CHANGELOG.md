@@ -1,4 +1,7 @@
 # Change Log
+-   V2.0.3 Bugfixes.
+-   V2.0.2 Bugfixes.
+-   V2.0.1 Bugfixes.
 -   V2.0.0 Complete rework. Added custom Tree View, right click hide and much more.
 -   V1.1.2 Global config bugfix.
 -   V1.1.1 Bugfix.

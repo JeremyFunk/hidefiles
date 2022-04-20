@@ -2,12 +2,10 @@
     "profiles": [
         {
             "name": "Default",
-            "detail": "Hides huge, annoying folders",
+            "detail": "",
+            "description": "Test",
             "hidden": [
-                "node_modules/",
-                ".vscode/",
-                ".storybook/",
-                ".github/"
+                ".vscode/"
             ]
         },
         {
@@ -15,36 +13,7 @@
             "detail": "Hide everything not immediately required",
             "hidden": [
                 "$Default",
-                "electron-builder.yml",
-                "graphql.schema.json",
-                "import-sorter.json",
-                "jest.config.ts",
-                "plopfile.ts",
-                "generators/"
-            ]
-        },
-        {
-            "name": "Focus",
-            "detail": "Hide everything not immediately required",
-            "hidden": [
-                "$Strict",
-                ".babelrc",
-                ".eslintrc.js",
-                ".prettierrc",
-                "codegen.yml",
-                "README.md",
-                "tsconfig.json",
-                "pacakge.json",
                 "yarn.lock"
-            ]
-        },
-        {
-            "name": "Full Focus",
-            "detail": "Hide everything not immediately required",
-            "hidden": [
-                "node_modules",
-                ".vscode",
-                "test-file.txt"
             ]
         }
     ]
