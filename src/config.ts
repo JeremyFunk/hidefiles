@@ -34,12 +34,11 @@ export const getData = async (): Promise<ConfigurationFile | undefined> => {
     );
     let location = ConfigurationLocation.Local;
     if (hidefilesConfig.workspaceValue === "global") {
-        data = await getDataByGlobalConfig();
+        data = await getDataByConfig(true);
         location = ConfigurationLocation.Global;
     } else {
-        data = getDataByLocalFile();
+        data = await getDataByConfig(false);
     }
-
     if (data) {
         data.profiles = [
             {
@@ -67,10 +66,10 @@ export const getDataUnmodified = async (): Promise<
     );
     let location = ConfigurationLocation.Local;
     if (hidefilesConfig.workspaceValue === "global") {
-        data = await getDataByGlobalConfig(false);
+        data = await getDataByConfig(true, false);
         location = ConfigurationLocation.Global;
     } else {
-        data = getDataByLocalFile(false);
+        data = await getDataByConfig(false, false);
     }
 
     return {
@@ -78,7 +77,8 @@ export const getDataUnmodified = async (): Promise<
         config: data,
     };
 };
-const getDataByGlobalConfig = async (
+const getDataByConfig = async (
+    global: boolean,
     modified = true
 ): Promise<Configuration | undefined> => {
     try {
@@ -87,31 +87,17 @@ const getDataByGlobalConfig = async (
             "hidefiles.globalConfig"
         );
 
-        if (hidefilesConfig.globalValue) {
+        if (hidefilesConfig.globalValue && global) {
             const res = hidefilesConfig.globalValue as Configuration;
+            return modified ? getDataByConfigFile(res) : res;
+        } else if (hidefilesConfig.workspaceValue && !global) {
+            const res = hidefilesConfig.workspaceValue as Configuration;
             return modified ? getDataByConfigFile(res) : res;
         }
     } catch (e) {
         console.error(e);
     }
 };
-
-const getDataByLocalFile = (modified = true): Configuration | undefined => {
-    const folders = vscode.workspace.workspaceFolders;
-    if (folders && folders.length > 0) {
-        const path = `${folders[0].uri.fsPath}/hide-files.json`;
-        if (fs.existsSync(path)) {
-            try {
-                delete require.cache[require.resolve(path)];
-                const res = require(path) as Configuration;
-                return modified ? getDataByConfigFile(res) : res;
-            } catch (er) {
-                console.log(er);
-            }
-        }
-    }
-};
-
 const getDataByConfigFile = (
     fileContent: Configuration
 ): Configuration | undefined => {
@@ -197,16 +183,19 @@ const recursivelyResolveHidden = (
 };
 
 export const writeConfig = async (config: ConfigurationFile) => {
+    const workspaceConfig = await vscode.workspace.getConfiguration();
     if (config.location === ConfigurationLocation.Local) {
-        const folders = vscode.workspace.workspaceFolders;
-        await fs.promises.writeFile(
-            `${folders[0].uri.fsPath}/hide-files.json`,
-            JSON.stringify(config.config, null, 4)
-        );
+        try {
+            await workspaceConfig.update(
+                "hidefiles.globalConfig",
+                config.config,
+                vscode.ConfigurationTarget.Workspace
+            );
+        } catch (e) {
+            console.error(e);
+        }
     } else {
         try {
-            const workspaceConfig = await vscode.workspace.getConfiguration();
-
             await workspaceConfig.update(
                 "hidefiles.globalConfig",
                 config.config,

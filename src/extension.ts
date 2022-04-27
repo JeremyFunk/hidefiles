@@ -2,13 +2,15 @@
 import * as vscode from "vscode";
 import {
     configExists,
+    Configuration,
     ConfigurationLocation,
     getData,
     getDataUnmodified,
     writeConfig,
 } from "./config";
+import * as fs from "fs";
 import { hideFiles } from "./core";
-import { createConfig, getConfigs } from "./create";
+import { getConfigs } from "./create";
 import { HiddenFilesProvider } from "./tree";
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -19,7 +21,77 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     try {
-        const configuration = await vscode.workspace.getConfiguration();
+        let configuration = await vscode.workspace.getConfiguration();
+        const moveLocalConfig = async () => {
+            const wsPath = vscode.workspace.workspaceFolders[0].uri.fsPath; // gets the path of the first workspace folder
+            const path = `${wsPath}/hide-files.json`;
+            const filePath = vscode.Uri.file(path);
+            if (fs.existsSync(filePath.fsPath)) {
+                try {
+                    delete require.cache[require.resolve(path)];
+                    const res = require(path) as Configuration;
+
+                    const existingValue = configuration.inspect(
+                        "hidefiles.globalConfig"
+                    );
+                    if (existingValue.workspaceValue) {
+                        vscode.window.showWarningMessage(
+                            "HideFiles uses the VSCode workspace config now, but a hide-files.json was detected. This file is no longer needed and can be deleted. Move the content of the file to the workspace config to preserve it!"
+                        );
+                    } else {
+                        await configuration.update(
+                            "hidefiles.globalConfig",
+                            res,
+                            vscode.ConfigurationTarget.Workspace
+                        );
+                        configuration =
+                            await vscode.workspace.getConfiguration();
+                        const newRes = (
+                            await configuration.inspect(
+                                "hidefiles.globalConfig"
+                            )
+                        ).workspaceValue as Configuration;
+                        const equal = newRes.profiles.every((p, i) => {
+                            const other = res.profiles[i];
+                            if (
+                                p.description !== other.description ||
+                                p.detail !== other.detail ||
+                                p.name !== other.name ||
+                                p.hidden.length !== other.hidden.length
+                            ) {
+                                console.log("Other not equal!!");
+                                return false;
+                            }
+                            let equal = true;
+                            p.hidden.forEach((h, j) => {
+                                const oh = other.hidden[j];
+                                if (h !== oh) {
+                                    console.log("not equal!", h, oh);
+                                    equal = false;
+                                }
+                            });
+                            return equal;
+                        });
+                        if (!equal) {
+                            vscode.window.showWarningMessage(
+                                'Could not move HideFiles config to VSCode workspace config! Please move the content of hide-files.json manually to .vscode/settings.json -> "hidefiles.globalConfig"!'
+                            );
+                        } else {
+                            fs.rmSync(path);
+                            vscode.window.showInformationMessage(
+                                "HideFiles config moved to VSCode workspace config!"
+                            );
+                        }
+                    }
+                } catch (er) {
+                    console.log(er);
+                }
+            }
+        };
+        try {
+            await moveLocalConfig();
+        } catch (e) {}
+
         const version = configuration.inspect("hidefiles.version");
         if (!version.globalValue || version.globalValue !== "2.0.0") {
             const result = await vscode.window.showInformationMessage(
@@ -857,11 +929,12 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
                 }
             } else {
-                if (!configExists()) {
-                    await writeConfig({
-                        config: getConfigs()[0].content,
-                        location: ConfigurationLocation.Local,
-                    });
+                if (!configData.workspaceValue) {
+                    await configuration.update(
+                        "globalConfig",
+                        getConfigs()[0].content,
+                        type
+                    );
                 }
             }
             refreshHideFiles("Show All Files");
