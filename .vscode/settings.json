@@ -13,4 +13,20 @@
     // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
     "typescript.tsc.autoDetect": "off",
     "hidefiles.configurationType": "local",
+    "hidefiles.globalConfig": {
+        "profiles": [
+            {
+                "name": "Default",
+                "detail": "This hide general things, not specific to any framework",
+                "description": "Some other information you might want to save",
+                "hidden": [".vscode/"]
+            },
+            {
+                "name": "Strict",
+                "detail": "Hide everything not immediately required",
+                "description": "And even more information",
+                "hidden": ["$Default", "yarn.lock"]
+            }
+        ]
+    }
 }
