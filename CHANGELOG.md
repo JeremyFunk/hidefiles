@@ -1,4 +1,6 @@
 # Change Log
+
+-   V2.1.0 hide-files.json is no longer used to store local configuration, instead the VSCode workspace config is used.
 -   V2.0.3 Bugfixes.
 -   V2.0.2 Bugfixes.
 -   V2.0.1 Bugfixes.
