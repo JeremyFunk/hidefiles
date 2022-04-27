@@ -6,11 +6,12 @@ Hide Files allows the user to configure profiles to hide all files and folders t
 
 ![Simple](https://i.imgur.com/mNNSGvz.gif)
 
+` Note: since Hide Files V2.1.0 the hide-files.json config is no longer present. Local configuration is managed via the VSCode workspace config.`
+
 The GIF above shows everything required to use the basic functionality of Hide Files. You should be good to go! The rest of this file is for a more in-depth tutorial. I recommend reading it to get the most out of this extension, but it is not required.
 
-
-
 <br><br>
+
 # A step by step introduction
 
 Let's say you are working on a project with a few folders and files you never or very rarely need access to. The unfiltered project structure might look like this (I'm using a NextJS project as an example):
@@ -18,6 +19,7 @@ Let's say you are working on a project with a few folders and files you never or
 ![NextJS unfiltered!](https://i.imgur.com/Kv5WVlc.png)
 
 Most of the folders and files are not required and tend to slow you down when trying to find a file or folder. Let's remove them.
+
 ## Setting up Hide Files
 
 After installing Hide Files, a new view in the explorer will open (at the bottom):
@@ -25,12 +27,14 @@ After installing Hide Files, a new view in the explorer will open (at the bottom
 ![Setup!](https://i.imgur.com/stnNdvC.png)
 
 ### Local setup (recommended)
-Clicking *Setup Hide Files*: This is the recommended in most cases. It sets up Hide Files for the **current workspace**. All settings will be exclusively saved in the current workspace, and will therefore not be available in any other workspace.
 
-When choosing the first option, a new hide-files.json file will be generated in your current workspace. This file contains all configured Hide Files profiles (more on those later).
+Clicking _Setup Hide Files_: This is the recommended in most cases. It sets up Hide Files for the **current workspace**. All settings will be exclusively saved in the current workspace, and will therefore not be available in any other workspace.
+
+When choosing the first option, all configuration will be save in the VSCode config for the current workspace (.vscode/settings.json).
 
 ### Global setup
-Clicking *Setup Hide Files Globally*: This sets Hide Files up for global use (global meaning across all projects/workspaces on your current machine). This can be useful if you mostly use one technology. If you, for example, primarily use NextJS, it might make sense to create a few global Hide Files profiles for NextJS so you don't have to repeatedly add all unnecesary files for each individual Hide Files configuration in your NextJS workspaces.
+
+Clicking _Setup Hide Files Globally_: This sets Hide Files up for global use (global meaning across all projects/workspaces on your current machine). This can be useful if you mostly use one technology. If you, for example, primarily use NextJS, it might make sense to create a few global Hide Files profiles for NextJS so you don't have to repeatedly add all unnecesary files for each individual Hide Files configuration in your NextJS workspaces.
 
 If you choose a global setup, the Hide Files config is stored in the VSCode Settings JSON. To acces it use the command `Preferences: Open Settings (JSON)` (Windows/Linux: _Ctrl + Shift + P_, MacOS: _⇧ + ⌘ + P_)
 
@@ -38,6 +42,7 @@ If you choose a global setup, the Hide Files config is stored in the VSCode Sett
 
 Search for `"hidefiles.globalConfig"` to find the config.
 <br><br>
+
 ## Hiding Files
 
 After setting Hide Files up, the `Hidden Files` view at the bottom of the explorer is available:
@@ -52,7 +57,7 @@ Profiles are used to easily switch between different levels of hiding. This way 
 
 Profiles can be also be helpful for big Monorepo projects. You can have a profile for client- and server developing and testing and switch between these profiles as needed.
 
-The Hide Files config contains two profiles by default: *`Default`* and *`Strict`*. The *`Default`* profile contains only the `.vscode/` folder and the *`Strict`* profile contains a dependency to *`Default`*. A dependency simply states, that the content of some profile will also be hidden in the profile that has a dependency to it. In this example, all the content of the *`Default`* profile will also be hidden in the *`Strict`* profile.
+The Hide Files config contains two profiles by default: _`Default`_ and _`Strict`_. The _`Default`_ profile contains only the `.vscode/` folder and the _`Strict`_ profile contains a dependency to _`Default`_. A dependency simply states, that the content of some profile will also be hidden in the profile that has a dependency to it. In this example, all the content of the _`Default`_ profile will also be hidden in the _`Strict`_ profile.
 
 ### Adding new files
 
