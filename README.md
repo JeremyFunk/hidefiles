@@ -8,6 +8,8 @@ Hide Files allows the user to configure profiles to hide all files and folders t
 
 ` Note: since Hide Files V2.1.0 the hide-files.json config is no longer present. Local configuration is managed via the VSCode workspace config.`
 
+` Note: V2.1.1 fixed Hide Files on Linux and MacOS.`
+
 The GIF above shows everything required to use the basic functionality of Hide Files. You should be good to go! The rest of this file is for a more in-depth tutorial. I recommend reading it to get the most out of this extension, but it is not required.
 
 <br><br>
