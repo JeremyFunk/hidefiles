@@ -196,8 +196,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     let formattedWorkspace = folders[0].uri.fsPath
                         .replaceAll("\\\\", "/")
                         .replaceAll("\\", "/");
-                    formattedWorkspace = formattedWorkspace.split(":")[1];
-                    formattedFilePath = formattedFilePath.split(":")[1];
+                    if (process.platform === "win32") {
+                        formattedWorkspace = formattedWorkspace.split(":")[1];
+                        formattedFilePath = formattedFilePath.split(":")[1];
+                    }
                     formattedFilePath = formattedFilePath.replace(
                         formattedWorkspace,
                         ""
