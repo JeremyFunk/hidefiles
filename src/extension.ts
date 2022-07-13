@@ -382,7 +382,7 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!profile.peek) {
                 profile.peek = [];
             }
-            profile.peek.push(a.label);
+            profile.peek.push(a.command.arguments[0]);
 
             const unmodifiedProfile = configUnmodified.config.profiles.find(
                 (p) => p.name === selectedProfile
@@ -390,7 +390,7 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!unmodifiedProfile.peek) {
                 unmodifiedProfile.peek = [];
             }
-            unmodifiedProfile.peek.push(a.label);
+            unmodifiedProfile.peek.push(a.command.arguments[0]);
 
             try {
                 await writeConfig(configUnmodified);
@@ -422,22 +422,27 @@ export async function activate(context: vscode.ExtensionContext) {
             const profile = config.config.profiles.find(
                 (p) => p.name === selectedProfile
             );
-            if (!profile.peek || !profile.peek.includes(a.label)) {
+            if (
+                !profile.peek ||
+                !profile.peek.includes(a.command.arguments[0])
+            ) {
                 return;
             }
-            profile.peek = profile.peek.filter((b) => b !== a.label);
+            profile.peek = profile.peek.filter(
+                (b) => b !== a.command.arguments[0]
+            );
 
             const unmodifiedProfile = configUnmodified.config.profiles.find(
                 (p) => p.name === selectedProfile
             );
             if (
                 !unmodifiedProfile.peek ||
-                !unmodifiedProfile.peek.includes(a.label)
+                !unmodifiedProfile.peek.includes(a.command.arguments[0])
             ) {
                 return;
             }
             unmodifiedProfile.peek = unmodifiedProfile.peek.filter(
-                (b) => b !== a.label
+                (b) => b !== a.command.arguments[0]
             );
 
             try {
@@ -471,13 +476,15 @@ export async function activate(context: vscode.ExtensionContext) {
                 (p) => p.name === clickedProfile
             );
 
-            profile.hidden = profile.hidden.filter((b) => b !== a.label);
+            profile.hidden = profile.hidden.filter(
+                (b) => b !== a.command.arguments[0]
+            );
 
             const unmodifiedProfile = configUnmodified.config.profiles.find(
                 (p) => p.name === clickedProfile
             );
             unmodifiedProfile.hidden = unmodifiedProfile.hidden.filter(
-                (b) => b !== a.label
+                (b) => b !== a.command.arguments[0]
             );
 
             try {

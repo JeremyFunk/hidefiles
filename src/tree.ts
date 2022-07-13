@@ -66,7 +66,7 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                             peek: false,
                             type: FileType.Setup,
                         }
-                    )
+                    ),
                 ];
             }
 
@@ -172,7 +172,7 @@ export class HiddenFilesProvider implements TreeDataProvider<TreeItem> {
                             {
                                 command: "hide-files.show",
                                 title: "Show",
-                                arguments: [c.file, c.profile],
+                                arguments: [c.fullFile, c.profile],
                             },
                             c.children,
                             {
